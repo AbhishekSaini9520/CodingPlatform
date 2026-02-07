@@ -50,7 +50,7 @@ const createProblem = async (req, res) => {
         // If the code run properly then we need to store it into database
         const userProblem = await Problem.create({
             ...req.body,
-            problemCreator : req.result._id
+            problemCreator: req.result._id
         })
 
         res.status(201).send("Problem Create Successfully")
@@ -125,30 +125,30 @@ const updateProblem = async (req, res) => {
 
 }
 
-const deleteProblem = async (req,res) => {
-    const {id} = req.params;
-    try{
+const deleteProblem = async (req, res) => {
+    const { id } = req.params;
+    try {
 
-        if(!id)
+        if (!id)
             res.send("ID is Missing");
 
         const deletedProblem = await Problem.findByIdAndDelete(id);
 
-        if(!deletedProblem)
+        if (!deletedProblem)
             res.status(404).send("Problem is Missing");
 
         res.status(200).send("Problem Successfully Deleted")
     }
-    catch(error){
+    catch (error) {
         res.status(404).send("Error " + error);
     }
 }
 
-const getProblemById = async (req,res) => {
-    const {id} = req.params;
-    try{
+const getProblemById = async (req, res) => {
+    const { id } = req.params;
+    try {
 
-        if(!id)
+        if (!id)
             res.send("ID is Missing");
 
         // console.log(id);
@@ -157,68 +157,69 @@ const getProblemById = async (req,res) => {
         // for not selection then do this .select('~hiddenTestCases');
         // console.log(getProblem)
 
-        if(!getProblem)
+        if (!getProblem)
             res.status(404).send("Problem is Missing");
 
         res.status(200).send(getProblem);
     }
-    catch(error){
+    catch (error) {
         res.status(404).send("Error " + error);
     }
 }
 
-const getAllProblem = async (req,res) => {
-    try{
+const getAllProblem = async (req, res) => {
+    try {
 
         const getProblem = await Problem.find({}).select('_id title difficulty tags');
 
-        if(getProblem.length == 0)
-            res.status(404).send("Problem is Missing");
+        if (getProblem.length == 0) {
+            return res.status(200).send([]);
+        }
 
         res.status(200).send(getProblem);
     }
-    catch(error){
+    catch (error) {
         res.status(404).send("Error " + error);
     }
 }
 
-const solvedAllProblemByUser = async (req,res) =>{
+const solvedAllProblemByUser = async (req, res) => {
 
-    try{
+    try {
         // const count = req.result.problemSolved.length;
         // res.status(200).send(count);
 
         const userId = req.result._id;
         const user = await User.findById(userId).populate({
-            path:"problemSolved",
-            select:"_id title difficulty tags"
+            path: "problemSolved",
+            select: "_id title difficulty tags"
         })
 
         res.status(200).send(user.problemSolved);
     }
-    catch(err){
+    catch (err) {
         res.status(500).send("Server Error " + err);
     }
 }
 
-const submittedProblem = async(req,res)=>{
+const submittedProblem = async (req, res) => {
 
-  try{
-     
-    const userId = req.result._id;
-    const problemId = req.params.pid;
+    try {
 
-  const ans = await Submission.find({userId,problemId});
-  
-  if(ans.length==0)
-    res.status(200).send("No Submission is persent");
+        const userId = req.result._id;
+        const problemId = req.params.pid;
 
-  res.status(200).send(ans);
+        const ans = await Submission.find({ userId, problemId });
 
-  }
-  catch(err){
-     res.status(500).send("Internal Server Error");
-  }
+        if (ans.length == 0)
+            res.status(200).send("No Submission is persent");
+
+        res.status(200).send(ans);
+
+    }
+    catch (err) {
+        res.status(500).send("Internal Server Error");
+    }
 }
 
 module.exports = { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem };

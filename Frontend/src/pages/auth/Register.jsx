@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, Mail, Lock, Loader2, ArrowRight, Calendar } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +12,7 @@ const Register = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,13 +31,26 @@ const Register = () => {
             return;
         }
 
-        // Simulate API call
+        // API call
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            console.log('Registration attempt:', formData);
-            // TODO: Implement actual registration logic here
+            const response = await fetch('http://localhost:4000/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.text();
+
+            if (!response.ok) {
+                throw new Error(data || 'Registration failed');
+            }
+
+            console.log('Registration successful:', data);
+            navigate('/login');
         } catch (err) {
-            setError('Registration failed. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }

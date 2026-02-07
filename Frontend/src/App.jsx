@@ -3,6 +3,8 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ProblemList from './pages/problems/ProblemList';
+import ProblemDetail from './pages/problems/ProblemDetail';
 
 function App() {
     return (
@@ -12,6 +14,8 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/problems" element={<ProblemList />} />
+                <Route path="/problems/:id" element={<ProblemDetail />} />
                 {/* Add more routes here as needed */}
             </Routes>
         </div>
