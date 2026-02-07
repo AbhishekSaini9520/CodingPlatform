@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { runCode, submitCode } from '../../api/submission.api';
 import { getProblemById } from '../../api/problem.api';
+import Tabs from '../../components/Tabs';
+import TestPanel from '../../components/TestPanel';
 import Editor from '@monaco-editor/react';
 import ReactMarkdown from 'react-markdown';
-import { Loader2, Play, Send, RotateCcw } from 'lucide-react';
+import { Loader2, Play, Send, RotateCcw, CheckCircle, XCircle } from 'lucide-react';
 
 const ProblemDetail = () => {
     const { id } = useParams();
@@ -12,7 +15,11 @@ const ProblemDetail = () => {
     const [error, setError] = useState(null);
     const [code, setCode] = useState('// Write your code here');
     const [language, setLanguage] = useState('javascript');
-    const [output, setOutput] = useState(null);
+    const [activeLeftTab, setActiveLeftTab] = useState('description');
+    const [runLoading, setRunLoading] = useState(false);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [runResult, setRunResult] = useState(null);
+    const [submitResult, setSubmitResult] = useState(null);
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -39,14 +46,49 @@ const ProblemDetail = () => {
         fetchProblem();
     }, [id]);
 
-    const handleRun = () => {
-        // TODO: Implement run logic
-        setOutput('Running code... (Not implemented yet)');
+    const handleRun = async () => {
+        setRunLoading(true);
+        setRunResult(null); // Clear previous results
+        try {
+            const result = await runCode(id, code, language);
+            setRunResult(result);
+            console.log("Run Result:", result);
+        } catch (err) {
+            console.error(err);
+            // Handle error (maybe show in console area)
+        } finally {
+            setRunLoading(false);
+        }
     };
 
-    const handleSubmit = () => {
-        // TODO: Implement submit logic
-        setOutput('Submitting code... (Not implemented yet)');
+    const handleSubmit = async () => {
+        setSubmitLoading(true);
+        try {
+            const result = await submitCode(id, code, language);
+            setSubmitResult(result);
+            console.log("Submit Result:", result);
+            alert(`Submission Status: ${result.status}`);
+        } catch (err) {
+            console.error(err);
+            alert("Submission Failed: " + (err.message || "Unknown Error"));
+        } finally {
+            setSubmitLoading(false);
+        }
+    };
+
+    const handleLanguageChange = (e) => {
+        const newLanguage = e.target.value;
+        setLanguage(newLanguage);
+
+        // Update code with boilerplate for the new language
+        if (problem && problem.startCode) {
+            const codeSnippet = problem.startCode.find(c => c.language === newLanguage);
+            if (codeSnippet) {
+                setCode(codeSnippet.initialCode);
+            } else {
+                setCode('// No boilerplate available for this language');
+            }
+        }
     };
 
     if (loading) {
@@ -72,11 +114,11 @@ const ProblemDetail = () => {
                 <div className="flex items-center space-x-4">
                     <select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
+                        onChange={handleLanguageChange}
                         className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="javascript">JavaScript</option>
-                        <option value="cpp">C++</option>
+                        <option value="c++">C++</option>
                         <option value="python">Python</option>
                         <option value="java">Java</option>
                     </select>
@@ -101,53 +143,69 @@ const ProblemDetail = () => {
 
             {/* Main Content */}
             <div className="flex-1 flex overflow-hidden">
-                {/* Problem Description (Left Panel) */}
-                <div className="w-1/2 overflow-y-auto p-6 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                    <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{problem.title}</h1>
-                    <div className="flex items-center gap-2 mb-6">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            ${problem.difficulty === 'easy' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' :
-                                problem.difficulty === 'medium' ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
-                                    'text-red-500 bg-red-50 dark:bg-red-900/20'}`}>
-                            {problem.difficulty}
-                        </span>
-                    </div>
-                    <div className="prose dark:prose-invert max-w-none">
-                        <ReactMarkdown>{problem.description}</ReactMarkdown>
-                    </div>
-
-                    {/* Examples */}
-                    <div className="mt-8 space-y-4">
-                        {problem.visibleTestCases && problem.visibleTestCases.map((testCase, index) => (
-                            <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Example {index + 1}:</h3>
-                                <div className="space-y-2 text-sm font-mono">
-                                    <div>
-                                        <span className="text-gray-500 dark:text-gray-400">Input:</span>
-                                        <span className="text-gray-900 dark:text-gray-200 ml-2">{testCase.input}</span>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-500 dark:text-gray-400">Output:</span>
-                                        <span className="text-gray-900 dark:text-gray-200 ml-2">{testCase.output}</span>
-                                    </div>
-                                    {testCase.explanation && (
-                                        <div>
-                                            <span className="text-gray-500 dark:text-gray-400">Explanation:</span>
-                                            <span className="text-gray-900 dark:text-gray-200 ml-2">{testCase.explanation}</span>
-                                        </div>
-                                    )}
+                {/* Left Panel */}
+                <div className="w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                    <Tabs
+                        tabs={[
+                            { id: 'description', label: 'Description' },
+                            { id: 'submissions', label: 'Submissions' }
+                        ]}
+                        activeTab={activeLeftTab}
+                        onTabChange={setActiveLeftTab}
+                    />
+                    <div className="flex-1 overflow-y-auto p-6">
+                        {activeLeftTab === 'description' ? (
+                            <>
+                                <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">{problem.title}</h1>
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium
+                                        ${problem.difficulty === 'easy' ? 'text-green-500 bg-green-50 dark:bg-green-900/20' :
+                                            problem.difficulty === 'medium' ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
+                                                'text-red-500 bg-red-50 dark:bg-red-900/20'}`}>
+                                        {problem.difficulty}
+                                    </span>
                                 </div>
+                                <div className="prose prose-lg dark:prose-invert max-w-none mb-6">
+                                    <ReactMarkdown>{problem.description}</ReactMarkdown>
+                                </div>
+
+                                {problem.visibleTestCases && problem.visibleTestCases.map((testCase, index) => (
+                                    <div key={index} className="space-y-4 mb-6">
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Example {index + 1}:</h3>
+                                        <div className="pl-4 border-l-4 border-gray-300 dark:border-gray-600 space-y-2">
+                                            <div className="flex gap-2 text-base font-mono">
+                                                <span className="font-bold text-gray-900 dark:text-white">Input:</span>
+                                                <span className="text-gray-800 dark:text-gray-300">{testCase.input}</span>
+                                            </div>
+                                            <div className="flex gap-2 text-base font-mono">
+                                                <span className="font-bold text-gray-900 dark:text-white">Output:</span>
+                                                <span className="text-gray-800 dark:text-gray-300">{testCase.output}</span>
+                                            </div>
+                                            {testCase.explanation && (
+                                                <div className="flex gap-2 text-base font-mono">
+                                                    <span className="font-bold text-gray-900 dark:text-white">Explanation:</span>
+                                                    <span className="text-gray-800 dark:text-gray-300">{testCase.explanation}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        ) : (
+                            <div className="text-gray-500 dark:text-gray-400">
+                                Submissions history will appear here.
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
 
-                {/* Code Editor & Console (Right Panel) */}
+                {/* Right Panel */}
                 <div className="w-1/2 flex flex-col bg-[#1e1e1e]">
-                    <div className="flex-1">
+                    {/* Code Editor */}
+                    <div className="flex-1 border-b border-gray-700">
                         <Editor
                             height="100%"
-                            language={language}
+                            language={language === 'c++' ? 'cpp' : language}
                             theme="vs-dark"
                             value={code}
                             onChange={(value) => setCode(value)}
@@ -160,25 +218,13 @@ const ProblemDetail = () => {
                         />
                     </div>
 
-                    {/* Console/Output */}
-                    <div className="h-1/3 border-t border-gray-700 bg-[#1e1e1e] flex flex-col">
-                        <div className="px-4 py-2 border-b border-gray-700 flex justify-between items-center bg-[#252526]">
-                            <span className="text-sm font-medium text-gray-300">Console</span>
-                            <button
-                                onClick={() => setOutput(null)}
-                                className="p-1 hover:bg-gray-700 rounded text-gray-400 hover:text-white"
-                                title="Clear Console"
-                            >
-                                <RotateCcw size={14} />
-                            </button>
-                        </div>
-                        <div className="flex-1 p-4 font-mono text-sm overflow-y-auto">
-                            {output ? (
-                                <pre className="text-gray-300">{output}</pre>
-                            ) : (
-                                <div className="text-gray-500 italic">Run your code to see output here</div>
-                            )}
-                        </div>
+                    {/* Test Panel (Bottom) */}
+                    <div className="h-1/3 min-h-[200px] bg-[#1e1e1e]">
+                        <TestPanel
+                            problem={problem}
+                            runResult={runResult}
+                            isRunning={runLoading}
+                        />
                     </div>
                 </div>
             </div>
