@@ -1,6 +1,7 @@
 const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility")
 const Problem = require("../models/problem")
 const User = require("../models/user")
+const Submission = require("../models/submission")
 
 
 const createProblem = async (req, res) => {

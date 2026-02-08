@@ -82,3 +82,29 @@ export const submitCode = async (problemId, code, language) => {
         throw error;
     }
 };
+
+export const getSubmissions = async (problemId) => {
+    try {
+        const response = await fetch(
+            `${BASE_URL}/problem/submittedProblem/${problemId}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData || "Failed to fetch submissions";
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("GET SUBMISSIONS ERROR:", error);
+        throw error;
+    }
+};
