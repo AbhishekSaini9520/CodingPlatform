@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { User, Mail, Lock, Loader2, ArrowRight, Calendar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
+    const { register } = useAuth();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -33,24 +35,11 @@ const Register = () => {
 
         // API call
         try {
-            const response = await fetch('http://localhost:4000/user/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await response.text();
-
-            if (!response.ok) {
-                throw new Error(data || 'Registration failed');
-            }
-
-            console.log('Registration successful:', data);
-            navigate('/login');
+            await register(formData);
+            console.log('Registration successful');
+            navigate('/problems');
         } catch (err) {
-            setError(err.message || 'Registration failed. Please try again.');
+            setError(err || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }

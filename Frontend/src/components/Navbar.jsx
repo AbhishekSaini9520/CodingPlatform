@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Bell, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, LogOut } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const user = null;
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setOpen(false);
+  };
 
   return (
     <nav className="bg-[#24292f] text-gray-200 px-6 py-2 flex items-center justify-between">
@@ -70,7 +76,11 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                   <div className="border-t border-gray-600 my-1"></div>
-                  <button className="w-full text-left px-4 py-2 hover:bg-[#373e47] cursor-pointer text-red-400 hover:text-red-300 transition-colors">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-[#373e47] cursor-pointer text-red-400 hover:text-red-300 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut size={16} />
                     Logout
                   </button>
                 </div>

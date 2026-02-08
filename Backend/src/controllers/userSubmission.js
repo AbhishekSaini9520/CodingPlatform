@@ -88,7 +88,7 @@ const submitCode = async (req, res) => {
             await req.result.save();
         }
 
-        res.status(201).send(submittedResult);
+        res.status(201).send({ ...submittedResult.toObject(), testResults: testResult });
 
     }
     catch (err) {

@@ -9,11 +9,41 @@ export const getAllProblems = async () => {
     }
 };
 
+// export const getProblemById = async (id) => {
+//     try {
+//         console.log("response is computed")
+//         const response = await axiosInstance.get(`/problem/problemById/${id}`);
+
+//         return response.data;
+//     } catch (error) {
+//         throw error.response?.data || "Failed to fetch problem details";
+//     }
+// };
+
 export const getProblemById = async (id) => {
     try {
-        const response = await axiosInstance.get(`/problem/problemById/${id}`);
-        return response.data;
+        // console.log("response is computed");
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:4000/problem/problemById/${id}`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData || "Failed to fetch problem details";
+        }
+        console.log("response is computed")
+        const data = await response.json();
+        return data;
+
     } catch (error) {
-        throw error.response?.data || "Failed to fetch problem details";
+        console.error("FETCH ERROR:", error);
+        throw error;
     }
 };
+

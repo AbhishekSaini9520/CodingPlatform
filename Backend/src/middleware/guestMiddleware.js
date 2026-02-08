@@ -29,7 +29,13 @@ const guestMiddleware = async (req, res, next) => {
             return next();
         }
 
-        const IsBlocked = await redisClient.exists(`token:${token}`);
+        let IsBlocked = false;
+        try {
+            IsBlocked = await redisClient.exists(`token:${token}`);
+        } catch (err) {
+            console.error("Redis check failed in guestMiddleware, proceeding as partial guest:", err.message);
+        }
+
         if (IsBlocked) {
             // Token blocked, treat as guest
             req.result = { _id: "guest", role: "guest" };

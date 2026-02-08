@@ -8,16 +8,7 @@ const axiosInstance = axios.create({
     },
 });
 
-// OPTIONAL: attach token automatically (JWT)
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+// NO interceptor needed for localStorage as we use cookies with httponly
+// withCredentials: true handles sending cookies automatically
 
 export default axiosInstance;

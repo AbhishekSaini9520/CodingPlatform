@@ -33,7 +33,7 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                     <div className="flex items-center gap-2">
                         Test Result
                         {runResult && (
-                            runResult.every(r => r.status_id === 3)
+                            runResult.every(r => (r.status?.id || r.status_id) === 3)
                                 ? <span className="text-green-500 text-xs">Passed</span>
                                 : <span className="text-red-500 text-xs">Failed</span>
                         )}
@@ -98,7 +98,7 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                                                     ? 'bg-[#3e3e3e] text-white'
                                                     : 'bg-transparent text-gray-400 hover:bg-[#2d2d2d] hover:text-gray-200'}`}
                                         >
-                                            {res.status_id === 3 ? (
+                                            {(res.status?.id || res.status_id) === 3 ? (
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                             ) : (
                                                 <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
@@ -111,9 +111,9 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                                 {/* Selected Result Detail */}
                                 {runResult[activeTestCaseId] && (
                                     <div className="space-y-4">
-                                        {runResult[activeTestCaseId].status_id !== 3 && (
+                                        {(runResult[activeTestCaseId].status?.id || runResult[activeTestCaseId].status_id) !== 3 && (
                                             <div className="bg-red-900/20 border border-red-900/50 p-3 rounded-lg text-red-400 font-mono text-sm">
-                                                {runResult[activeTestCaseId].stderr || runResult[activeTestCaseId].message || 'Wrong Answer'}
+                                                {runResult[activeTestCaseId].stderr || runResult[activeTestCaseId].compile_output || runResult[activeTestCaseId].message || 'Error'}
                                             </div>
                                         )}
 
@@ -127,8 +127,8 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                                         <div className="space-y-1">
                                             <label className="text-xs text-gray-400">Output</label>
                                             <div className={`p-3 rounded-lg font-mono text-sm border border-gray-700 
-                                                ${runResult[activeTestCaseId].status_id === 3 ? 'bg-[#2d2d2d] text-gray-300' : 'bg-red-900/10 text-red-200 border-red-900/30'}`}>
-                                                {runResult[activeTestCaseId].stdout}
+                                                ${(runResult[activeTestCaseId].status?.id || runResult[activeTestCaseId].status_id) === 3 ? 'bg-[#2d2d2d] text-gray-300' : 'bg-red-900/10 text-red-200 border-red-900/30'}`}>
+                                                {runResult[activeTestCaseId].stdout || "N/A"}
                                             </div>
                                         </div>
 

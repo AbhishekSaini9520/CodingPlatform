@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -8,19 +10,20 @@ const Login = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        // Simulate API call
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            console.log('Login attempt:', formData);
-            // TODO: Implement actual login logic here
+            await login(formData);
+            // console.log(formData);
+            navigate('/problems');
         } catch (err) {
-            setError('Invalid credentials. Please try again.');
+            setError(err || 'Invalid credentials. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -134,9 +137,9 @@ const Login = () => {
                 <div className="mt-6 text-center text-sm">
                     <p className="text-gray-600 dark:text-gray-400">
                         Don't have an account?{' '}
-                        <a href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 transition-colors">
+                        <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 transition-colors">
                             Sign up for free
-                        </a>
+                        </Link>
                     </p>
                 </div>
             </div>

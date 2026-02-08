@@ -24,6 +24,7 @@ const ProblemDetail = () => {
     useEffect(() => {
         const fetchProblem = async () => {
             try {
+                // console.log("data is computed")
                 const data = await getProblemById(id);
                 setProblem(data);
                 // Set initial code if available
@@ -50,8 +51,15 @@ const ProblemDetail = () => {
         setRunLoading(true);
         setRunResult(null); // Clear previous results
         try {
+            // console.log(id, code, language)
             const result = await runCode(id, code, language);
+
+            console.log("code is run successfully");
+            console.log(result);
+
+            // 🔥 Set run result as the array expected by TestPanel
             setRunResult(result);
+
             console.log("Run Result:", result);
         } catch (err) {
             console.error(err);
@@ -63,11 +71,18 @@ const ProblemDetail = () => {
 
     const handleSubmit = async () => {
         setSubmitLoading(true);
+        setRunResult(null); // Clear previous results
         try {
             const result = await submitCode(id, code, language);
             setSubmitResult(result);
+
+            // 🔥 Use the detailed results from submission to show in TestPanel
+            if (result.testResults) {
+                setRunResult(result.testResults);
+            }
+
             console.log("Submit Result:", result);
-            alert(`Submission Status: ${result.status}`);
+            // alert(`Submission Status: ${result.status}`);
         } catch (err) {
             console.error(err);
             alert("Submission Failed: " + (err.message || "Unknown Error"));
@@ -126,17 +141,27 @@ const ProblemDetail = () => {
                 <div className="flex items-center space-x-2">
                     <button
                         onClick={handleRun}
-                        className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                        disabled={runLoading}
+                        className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
-                        <Play className="w-4 h-4 mr-2 text-green-500" />
-                        Run
+                        {runLoading ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin text-blue-500" />
+                        ) : (
+                            <Play className="w-4 h-4 mr-2 text-green-500" />
+                        )}
+                        {runLoading ? 'Running...' : 'Run'}
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                        disabled={submitLoading}
+                        className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-70"
                     >
-                        <Send className="w-4 h-4 mr-2" />
-                        Submit
+                        {submitLoading ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                            <Send className="w-4 h-4 mr-2" />
+                        )}
+                        {submitLoading ? 'Submitting...' : 'Submit'}
                     </button>
                 </div>
             </div>
