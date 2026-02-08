@@ -19,9 +19,14 @@ export const runCode = async (problemId, code, language) => {
                     language,
                     code,
                 }),
+
             }
         );
         // console.log(response);
+
+        // console.log("API RESPONSE FULL:", response);
+        // console.log("TYPE:", typeof response);
+        // console.log("IS ARRAY:", Array.isArray(response));
 
 
         if (!response.ok) {
@@ -31,9 +36,7 @@ export const runCode = async (problemId, code, language) => {
 
         const data = await response.json();
 
-        console.log("API RESPONSE FULL:", response);
-        console.log("TYPE:", typeof response);
-        console.log("IS ARRAY:", Array.isArray(response));
+
         return data;
 
     } catch (error) {
@@ -44,12 +47,15 @@ export const runCode = async (problemId, code, language) => {
 
 export const submitCode = async (problemId, code, language) => {
     try {
-        const token = localStorage.getItem("token");
+
 
         const response = await fetch(
             `${BASE_URL}/submission/submit/${problemId}`,
             {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                     language,
                     code,
@@ -58,12 +64,17 @@ export const submitCode = async (problemId, code, language) => {
             }
         );
 
+        console.log(language);
+        console.log(problemId);
+        console.log(code);
+
         if (!response.ok) {
             const errorData = await response.json();
             throw errorData || "Failed to submit code";
         }
 
         const data = await response.json();
+
         return data;
 
     } catch (error) {

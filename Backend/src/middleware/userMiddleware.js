@@ -24,15 +24,15 @@ const userMiddleware = async (req, res, next) => {
         if (!result)
             throw new Error("User does not exist");
 
-        let IsBlocked = false;
-        try {
-            IsBlocked = await redisClient.exists(`token:${token}`);
-        } catch (err) {
-            console.error("Redis check failed, skipping blocklist check:", err.message);
-        }
+        // let IsBlocked = false;
+        // try {
+        //     IsBlocked = await redisClient.exists(`token:${token}`);
+        // } catch (err) {
+        //     console.error("Redis check failed, skipping blocklist check:", err.message);
+        // }
 
-        if (IsBlocked)
-            throw new Error("Invalid Token");
+        // if (IsBlocked)
+        //     throw new Error("Invalid Token");
 
         req.result = result;
 

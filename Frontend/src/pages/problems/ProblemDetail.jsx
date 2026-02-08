@@ -76,13 +76,11 @@ const ProblemDetail = () => {
             const result = await submitCode(id, code, language);
             setSubmitResult(result);
 
-            // 🔥 Use the detailed results from submission to show in TestPanel
             if (result.testResults) {
                 setRunResult(result.testResults);
             }
 
-            console.log("Submit Result:", result);
-            // alert(`Submission Status: ${result.status}`);
+            alert(`Submission Status: ${result.status}`);
         } catch (err) {
             console.error(err);
             alert("Submission Failed: " + (err.message || "Unknown Error"));

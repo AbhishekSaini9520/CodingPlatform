@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
             const data = await getProfile();
             setUser(data);
         } catch (error) {
+            console.error("Failed to load user profile:", error);
             setUser(null);
         } finally {
             setLoading(false);

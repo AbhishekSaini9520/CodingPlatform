@@ -26,9 +26,14 @@ const register = async (req, res) => {
 
         const user = await User.create(req.body);
 
-        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '7d' });
 
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        res.cookie('token', token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax'
+        });
         res.status(201).json({
             message: "User Registered Successfully",
             user: {
@@ -62,8 +67,13 @@ const login = async (req, res) => {
             throw new Error("Invalid Credentials");
 
         // create token for cookie
-        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '7d' });
+        res.cookie('token', token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax'
+        });
         res.status(200).json({
             message: "Login Successfully",
             user: {
@@ -92,7 +102,11 @@ const logout = async (req, res) => {
             console.error("Redis logout tracking failed:", err.message);
         }
 
-        res.cookie("token", null, { expires: new Date(Date.now()) });
+        res.cookie("token", null, {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            path: '/'
+        });
         res.send("Logged Out Successfully");
     }
     catch (error) {
@@ -115,9 +129,14 @@ const adminRegister = async (req, res) => {
         }
 
         const user = await User.create(req.body);
-        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
+        const token = jwt.sign({ _id: user._id, emailId: user.emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: '7d' });
 
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        res.cookie('token', token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'lax'
+        });
         res.status(201).send("Admin registered successfully");
     }
     catch (error) {
