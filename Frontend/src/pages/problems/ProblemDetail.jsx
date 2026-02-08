@@ -126,7 +126,7 @@ const ProblemDetail = () => {
                 <PanelGroup orientation="horizontal">
                     {/* Left Side: Description and Submissions */}
                     <Panel defaultSize={50} minSize={20}>
-                        <div className="h-full flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+                        <div className="h-full flex flex-col border-r border-gray-700 bg-gray-900 overflow-hidden">
                             <Tabs
                                 tabs={[
                                     { id: 'description', label: 'Description' },
@@ -145,8 +145,8 @@ const ProblemDetail = () => {
                         </div>
                     </Panel>
 
-                    <PanelResizeHandle className="w-1.5 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex items-center justify-center group cursor-col-resize">
-                        <div className="w-0.5 h-8 bg-gray-400 dark:bg-gray-600 group-hover:bg-white rounded-full"></div>
+                    <PanelResizeHandle className="w-1.5 bg-gray-900 border-x border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-col-resize">
+                        <div className="w-0.5 h-8 bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
                     </PanelResizeHandle>
 
                     {/* Right Side: Code Editor and Test Results */}
@@ -160,8 +160,8 @@ const ProblemDetail = () => {
                                 />
                             </Panel>
 
-                            <PanelResizeHandle className="h-1.5 bg-gray-200 dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex items-center justify-center group cursor-row-resize">
-                                <div className="w-8 h-0.5 bg-gray-400 dark:bg-gray-600 group-hover:bg-white rounded-full"></div>
+                            <PanelResizeHandle className="h-1.5 bg-gray-900 border-y border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-row-resize">
+                                <div className="w-8 h-0.5 bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
                             </PanelResizeHandle>
 
                             <Panel defaultSize={30} minSize={10}>
