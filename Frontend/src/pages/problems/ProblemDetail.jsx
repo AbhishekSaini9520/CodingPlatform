@@ -13,8 +13,8 @@ const ProblemDetail = () => {
     const [problem, setProblem] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [code, setCode] = useState('// Write your code here');
-    const [language, setLanguage] = useState('javascript');
+    const [code, setCode] = useState('// Write your code here (C++)');
+    const [language, setLanguage] = useState('c++');
     const [activeLeftTab, setActiveLeftTab] = useState('description');
     const [runLoading, setRunLoading] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -29,12 +29,13 @@ const ProblemDetail = () => {
                 setProblem(data);
                 // Set initial code if available
                 if (data.startCode && data.startCode.length > 0) {
-                    const jsCode = data.startCode.find(c => c.language === 'javascript');
-                    if (jsCode) {
-                        setCode(jsCode.initialCode);
+                    const cppCode = data.startCode.find(c => c.language === 'c++');
+                    if (cppCode) {
+                        setCode(cppCode.initialCode);
                     } else {
-                        setCode(data.startCode[0].initialCode);
-                        setLanguage(data.startCode[0].language);
+                        const defaultCode = data.startCode[0];
+                        setCode(defaultCode.initialCode);
+                        setLanguage(defaultCode.language);
                     }
                 }
             } catch (err) {
