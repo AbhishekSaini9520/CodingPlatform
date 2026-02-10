@@ -158,9 +158,9 @@ const Dashboard = () => {
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4">Recommended</h3>
                         <div className="space-y-4">
                             {[
-                                { title: "Merge Sorted Arrays", diff: "Easy" },
-                                { title: "Binary Tree Level Order", diff: "Medium" },
-                                { title: "Reverse Linked List", diff: "Easy" }
+                                { title: "Linear Search", diff: "Easy" },
+                                { title: "Binary Search", diff: "Medium" },
+                                { title: "Sort the Array", diff: "Easy" }
                             ].map((prob, i) => (
                                 <Link
                                     key={i}
