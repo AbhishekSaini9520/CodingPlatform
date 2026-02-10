@@ -9,6 +9,7 @@ import Contest from './pages/Contest';
 import Leaderboard from './pages/Leaderboard';
 import Discuss from './pages/Discuss';
 import Profile from './pages/Profile';
+import Dashboard from './pages/Dashboard';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -28,6 +29,7 @@ function App() {
                     <Route path="/leaderboard" element={<Leaderboard />} />
                     <Route path="/discuss" element={<Discuss />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     {/* Add more routes here as needed */}
                 </Routes>
             </div>
