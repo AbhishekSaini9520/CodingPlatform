@@ -69,10 +69,18 @@ const Navbar = () => {
               {/* Dropdown */}
               {open && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#2d333b] rounded-md shadow-lg text-base z-50 border border-gray-700">
-                  <Link to="/profile" className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors">
+                  <Link
+                    to="/profile"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                  >
                     Profile
                   </Link>
-                  <Link to="/dashboard" className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors">
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                  >
                     Dashboard
                   </Link>
                   <div className="border-t border-gray-600 my-1"></div>

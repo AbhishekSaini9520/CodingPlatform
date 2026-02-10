@@ -8,6 +8,7 @@ import ProblemDetail from './pages/problems/ProblemDetail';
 import Contest from './pages/Contest';
 import Leaderboard from './pages/Leaderboard';
 import Discuss from './pages/Discuss';
+import Profile from './pages/Profile';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/contests" element={<Contest />} />
                     <Route path="/leaderboard" element={<Leaderboard />} />
                     <Route path="/discuss" element={<Discuss />} />
+                    <Route path="/profile" element={<Profile />} />
                     {/* Add more routes here as needed */}
                 </Routes>
             </div>
