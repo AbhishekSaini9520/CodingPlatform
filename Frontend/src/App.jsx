@@ -5,6 +5,9 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ProblemList from './pages/problems/ProblemList';
 import ProblemDetail from './pages/problems/ProblemDetail';
+import Contest from './pages/Contest';
+import Leaderboard from './pages/Leaderboard';
+import Discuss from './pages/Discuss';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -20,6 +23,9 @@ function App() {
                     <Route path="/problems" element={<ProblemList />} />
                     <Route path="/problem" element={<ProblemList />} />
                     <Route path="/problems/:id" element={<ProblemDetail />} />
+                    <Route path="/contests" element={<Contest />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/discuss" element={<Discuss />} />
                     {/* Add more routes here as needed */}
                 </Routes>
             </div>
