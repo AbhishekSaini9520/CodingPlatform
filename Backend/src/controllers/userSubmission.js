@@ -83,7 +83,7 @@ const submitCode = async (req, res) => {
         // ProblemId ko insert karenge userSchema ke problemSolved mein if it is not persent there.
 
         // req.result == user Information
-        if (!req.result.problemSolved.includes(problemId)) {
+        if (status === 'accepted' && !req.result.problemSolved.includes(problemId)) {
             req.result.problemSolved.push(problemId);
             await req.result.save();
         }

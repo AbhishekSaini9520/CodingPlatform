@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { getAllProblems } from '../../api/problem.api';
 import { Link } from 'react-router-dom';
-import { Loader2, Search, Tag, BarChart } from 'lucide-react';
+import { Loader2, Search, Tag, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const ProblemList = () => {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchProblems = async () => {
@@ -27,6 +29,7 @@ const ProblemList = () => {
     const filteredProblems = problems.filter(problem =>
         problem.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
 
     const getDifficultyColor = (difficulty) => {
         switch (difficulty.toLowerCase()) {
@@ -88,17 +91,17 @@ const ProblemList = () => {
                                 <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                     Tags
                                 </th>
-                                <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    Acceptance
-                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             {filteredProblems.map((problem) => (
                                 <tr key={problem._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* TODO: Check if solved */}
-                                        <div className="h-2.5 w-2.5 rounded-full bg-gray-300" aria-hidden="true"></div>
+                                        {user?.problemSolved?.includes(problem._id) ? (
+                                            <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-50 dark:fill-green-900/20" />
+                                        ) : (
+                                            <div className="h-2.5 w-2.5 ml-1.5 rounded-full bg-gray-300 dark:bg-gray-600" aria-hidden="true"></div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <Link to={`/problems/${problem._id}`} className="text-base font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
@@ -119,10 +122,6 @@ const ProblemList = () => {
                                                 </span>
                                             ) : null}
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500 dark:text-gray-400">
-                                        {/* TODO: Implement acceptance rate */}
-                                        --
                                     </td>
                                 </tr>
                             ))}
