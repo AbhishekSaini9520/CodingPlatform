@@ -22,7 +22,7 @@ const ComingSoon = ({ title, description }) => {
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/25 active:scale-95"
             >
                 <ArrowLeft className="mr-2 h-5 w-5" />
-                Back to Dashboard
+                Back to Home
             </Link>
 
             <div className="mt-16 flex gap-8">
