@@ -32,7 +32,8 @@ const register = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             path: '/',
-            sameSite: 'lax'
+            sameSite: 'none', // Allow cross-site requests
+            secure: true      // Required when sameSite is 'none'
         });
         res.status(201).json({
             message: "User Registered Successfully",
@@ -72,7 +73,8 @@ const login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             path: '/',
-            sameSite: 'lax'
+            sameSite: 'none', // Allow cross-site requests
+            secure: true      // Required when sameSite is 'none'
         });
         res.status(200).json({
             message: "Login Successfully",
@@ -135,7 +137,8 @@ const adminRegister = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             path: '/',
-            sameSite: 'lax'
+            sameSite: 'none', // Allow cross-site requests
+            secure: true      // Required when sameSite is 'none'
         });
         res.status(201).send("Admin registered successfully");
     }

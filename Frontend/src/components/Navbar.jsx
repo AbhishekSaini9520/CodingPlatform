@@ -83,6 +83,13 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
+                  {user.role=='admin' && <Link
+                    to="/admin"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                  >
+                    Admin Panel
+                  </Link>}
                   <div className="border-t border-gray-600 my-1"></div>
                   <button
                     onClick={handleLogout}
