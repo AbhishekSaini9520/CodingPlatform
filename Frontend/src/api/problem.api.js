@@ -27,7 +27,7 @@ export const getProblemById = async (id) => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            `http://localhost:4000/problem/problemById/${id}`,
+            `https://codingplatform-3ipe.onrender.com/problem/problemById/${id}`,
             {
                 method: "GET",
             }

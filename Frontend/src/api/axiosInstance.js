@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:4000", // 🔥 backend port
+    baseURL: "https://codingplatform-3ipe.onrender.com", // 🔥 backend port
     withCredentials: true,            // if using cookies / sessions
     headers: {
         "Content-Type": "application/json",
