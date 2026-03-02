@@ -11,8 +11,20 @@ const submitRouter = require('./routes/submit')
 
 app.use(express.json());
 app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://coding-platform-eta-woad.vercel.app"
+];
+
 app.use(cors({
-  origin: "https://coding-platform-eta-woad.vercel.app/"
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
 
 app.use('/user', userAuth);

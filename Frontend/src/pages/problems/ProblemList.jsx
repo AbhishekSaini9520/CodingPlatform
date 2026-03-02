@@ -15,6 +15,7 @@ const ProblemList = () => {
         const fetchProblems = async () => {
             try {
                 const data = await getAllProblems();
+                console.log(data);
                 setProblems(data);
             } catch (err) {
                 setError(err.message || 'Failed to load problems');
