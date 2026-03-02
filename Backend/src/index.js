@@ -12,7 +12,7 @@ const submitRouter = require('./routes/submit')
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://your-project.vercel.app"
+  origin: "https://coding-platform-eta-woad.vercel.app/"
 }));
 
 app.use('/user', userAuth);
