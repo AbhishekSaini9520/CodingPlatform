@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, logoutUser, getProfile, registerUser } from '../api/auth.api';
+import { getSolvedQuestion } from '../api/problem.api';
 
 const AuthContext = createContext();
 
@@ -9,8 +10,20 @@ export const AuthProvider = ({ children }) => {
 
     const loadUser = async () => {
         try {
-            const data = await getProfile();
-            setUser(data);
+            // get basic user
+            const profileData = await getProfile();
+
+            // get solved problems
+            const solvedData = await getSolvedQuestion();
+
+            // attach solved problems to user
+            const updatedUser = {
+                ...profileData,
+                problemSolved: solvedData.problemSolved || []
+            };
+
+            setUser(updatedUser);
+
         } catch (error) {
             console.error("Failed to load user profile:", error);
             setUser(null);
