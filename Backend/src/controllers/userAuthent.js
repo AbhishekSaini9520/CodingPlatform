@@ -97,12 +97,12 @@ const logout = async (req, res) => {
         const { token } = req.cookies;
         const payload = jwt.decode(token);
 
-        try {
-            await redisClient.set(`token:${token}`, 'Blocked');
-            await redisClient.expireAt(`token:${token}`, payload.exp);
-        } catch (err) {
-            console.error("Redis logout tracking failed:", err.message);
-        }
+        // try {
+        //     await redisClient.set(`token:${token}`, 'Blocked');
+        //     await redisClient.expireAt(`token:${token}`, payload.exp);
+        // } catch (err) {
+        //     console.error("Redis logout tracking failed:", err.message);
+        // }
 
         res.cookie("token", null, {
             expires: new Date(Date.now()),
