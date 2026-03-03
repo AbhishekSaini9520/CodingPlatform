@@ -68,6 +68,10 @@ const ProblemDetail = () => {
         setSubmitLoading(true);
         setRunResult(null);
         try {
+            const user_id = id;
+            if (!user_id) {
+
+            }
             const result = await submitCode(id, code, language);
             setSubmitResult(result);
             if (result.testResults) {
