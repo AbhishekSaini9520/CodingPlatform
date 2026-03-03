@@ -19,6 +19,8 @@ const Profile = () => {
     }
 
     const solvedCount = user.problemSolved?.length || 0;
+    console.log(user);
+    // console.log(solvedCount);
     const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric'
