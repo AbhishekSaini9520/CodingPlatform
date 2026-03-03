@@ -17,7 +17,7 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -32,26 +32,26 @@ app.use('/problem', problemRouter);
 app.use('/submission', submitRouter);
 
 const InitalizeConnection = async () => {
-    try {
-        await main();
-        console.log("DB Connected");
-    }
-    catch (err) {
-        console.log("DB is not connected , Error: ", err);
-        return;
-    }
+  try {
+    await main();
+    console.log("DB Connected");
+  }
+  catch (err) {
+    console.log("DB is not connected , Error: ", err);
+    return;
+  }
 
-    try {
-        await redisClient.connect();
-        console.log("Redis Connected");
-    }
-    catch (error) {
-        console.log("Redis Connection Failed (Ignoring): ", error.message);
-    }
+  try {
+    await redisClient.connect();
+    console.log("Redis Connected");
+  }
+  catch (error) {
+    console.log("Redis Connection Failed (Ignoring): ", error.message);
+  }
 
-    app.listen(process.env.PORT, () => {
-        console.log("Listening at the port number: " + process.env.PORT)
-    })
+  app.listen(process.env.PORT, () => {
+    console.log("Listening at the port number: " + process.env.PORT)
+  })
 }
 
 InitalizeConnection();

@@ -18,7 +18,7 @@ const problemSchema = new Schema({
     },
     tags: {
         type: String,
-        enum: ['array', 'linklist', 'graph', 'DP'],
+        enum: ['Array', 'LinkList', 'Graph', 'DP', 'Math', 'math', 'array'],
         required: true
     },
     visibleTestCases: [{
@@ -30,7 +30,7 @@ const problemSchema = new Schema({
             type: String,
             required: true
         },
-        explationation: {
+        explanation: {
             type: String,
             required: true
         }

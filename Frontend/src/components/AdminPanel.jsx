@@ -2,7 +2,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axiosInstance from '../api/axiosInstance';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Terminal, Code, Settings, ListChecks, Server, ChevronRight, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
 
@@ -11,7 +11,7 @@ const problemSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(1, 'Description is required'),
     difficulty: z.enum(['easy', 'medium', 'hard']),
-    tags: z.enum(['array', 'linkedList', 'graph', 'dp', 'math']),
+    tags: z.string().min(1, "Tag required"),
     visibleTestCases: z.array(
         z.object({
             input: z.string().min(1, 'Input is required'),
@@ -83,25 +83,53 @@ function AdminPanel() {
     });
 
     const onSubmit = async (data) => {
+
+
+        console.log("TYPE:", typeof data.tags);
+        console.log("VALUE:", data.tags);
+        const fixNewLines = (testCases) =>
+            testCases.map(tc => ({
+                ...tc,
+                input: tc.input.replace(/\\n/g, "\n"),
+                output: tc.output.replace(/\\n/g, "\n")
+            }));
+
+        data.visibleTestCases = fixNewLines(data.visibleTestCases);
+        data.hiddenTestCases = fixNewLines(data.hiddenTestCases);
+
         setIsSubmitting(true);
         setSubmitError(null);
         setSubmitSuccess(false);
 
         try {
-            console.log('Submitting problem data:', data);
-            const response = await axiosInstance.post('/problem/create', data);
-            console.log('Problem created successfully:', response.data);
+
+            data.referenceSolution = data.referenceSolution.map(sol => ({
+                language: sol.language,
+                completeSolution: sol.completeCode
+            }));
+
+            console.log("Submitting problem data:", data);
+
+            const response = await axiosInstance.post(
+                "/problem/create",
+                data
+            );
+
             setSubmitSuccess(true);
-            setTimeout(() => {
-                navigate('/');
-            }, 1500);
+            setTimeout(() => navigate("/"), 1500);
+
         } catch (error) {
-            console.error('Error creating problem:', error);
-            const errorMessage = error.response?.data?.message ||
+
+            console.error("Error creating problem:", error);
+
+            const errorMessage =
+                error.response?.data?.message ||
                 error.response?.data?.error ||
                 error.message ||
-                'Failed to create problem';
+                "Failed to create problem";
+
             setSubmitError(errorMessage);
+
         } finally {
             setIsSubmitting(false);
         }
@@ -195,11 +223,11 @@ function AdminPanel() {
                                             {...register('tags')}
                                             className={`w-full bg-[#0f172a] border ${errors.tags ? 'border-red-500' : 'border-slate-700'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 appearance-none`}
                                         >
-                                            <option value="array">Array</option>
-                                            <option value="linkedList">Linked List</option>
-                                            <option value="graph">Graph</option>
-                                            <option value="dp">Dynamic Programming</option>
-                                            <option value="math">Math</option>
+                                            <option value="Array">Array</option>
+                                            <option value="LinkedList">Linked List</option>
+                                            <option value="Graph">Graph</option>
+                                            <option value="DP">Dynamic Programming</option>
+                                            <option value="Math">Math</option>
                                         </select>
                                     </div>
                                     {errors.tags && <span className="text-red-400 text-sm mt-1.5 inline-block">{errors.tags.message}</span>}
@@ -401,7 +429,7 @@ function AdminPanel() {
                                     </>
                                 ) : (
                                     <>
-                                        🚀 Launch Problem to Platform
+                                        Launch Problem to Platform
                                         <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}

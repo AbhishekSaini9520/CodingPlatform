@@ -1,5 +1,5 @@
-const BASE_URL = "https://codingplatform-3ipe.onrender.com";
-// const BASE_URL = "http://localhost:4000";
+// const BASE_URL = "https://codingplatform-3ipe.onrender.com";
+const BASE_URL = "http://localhost:4000";
 
 export const runCode = async (problemId, code, language) => {
     try {
