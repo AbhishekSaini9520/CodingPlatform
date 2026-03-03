@@ -1,4 +1,6 @@
 import axiosInstance from "./axiosInstance";
+const BASE_URL = "https://codingplatform-3ipe.onrender.com";
+// const BASE_URL = "http://localhost:4000";
 
 export const getAllProblems = async () => {
     try {
@@ -26,14 +28,14 @@ export const getProblemById = async (id) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await axiosInstance.get(`/problem/problemById/${id}`);
+        // const response = await axiosInstance.get(`/problem/problemById/${id}`);
 
-        // const response = await fetch(
-        //     `https://codingplatform-3ipe.onrender.com/problem/problemById/${id}`,
-        //     {
-        //         method: "GET",
-        //     }
-        // );
+        const response = await fetch(
+            `${BASE_URL}/problem/problemById/${id}`,
+            {
+                method: "GET",
+            }
+        );
 
         if (!response.ok) {
             const errorData = await response.json();

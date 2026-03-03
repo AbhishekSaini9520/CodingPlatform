@@ -5,6 +5,12 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
     const [activeTab, setActiveTab] = useState('testcase');
     const [activeTestCaseId, setActiveTestCaseId] = useState(0);
 
+    useEffect(() => {
+        if (isRunning) {
+            setActiveTab('result');
+        }
+    }, [isRunning]);
+
     return (
         <div className="flex flex-col h-full bg-gray-800 border-t border-gray-700">
             {/* Main Tabs (Testcase / Result) */}
