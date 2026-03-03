@@ -9,96 +9,103 @@ function Admin() {
     {
       id: 'create',
       title: 'Create Problem',
-      description: 'Add a new coding problem to the platform',
+      description: 'Add a new coding problem to the platform with full details and test cases.',
       icon: Plus,
-      color: 'btn-success',
-      bgColor: 'bg-success/10',
+      gradient: 'from-emerald-400 to-teal-500',
+      shadow: 'shadow-emerald-500/30',
       route: '/admin/create'
     },
     {
       id: 'update',
       title: 'Update Problem',
-      description: 'Edit existing problems and their details',
+      description: 'Modify existing problem descriptions, test cases, or constraints.',
       icon: Edit,
-      color: 'btn-warning',
-      bgColor: 'bg-warning/10',
+      gradient: 'from-amber-400 to-orange-500',
+      shadow: 'shadow-amber-500/30',
       route: '/admin/update'
     },
     {
       id: 'delete',
       title: 'Delete Problem',
-      description: 'Remove problems from the platform',
+      description: 'Permanently remove a problem from the coding platform.',
       icon: Trash2,
-      color: 'btn-error',
-      bgColor: 'bg-error/10',
+      gradient: 'from-rose-400 to-red-500',
+      shadow: 'shadow-red-500/30',
       route: '/admin/delete'
     },
     {
       id: 'video',
-      title: 'Video Problem',
-      description: 'Upload and Delete Videos',
+      title: 'Video Solutions',
+      description: 'Manage and upload video explanations for problems.',
       icon: Video,
-      color: 'btn-success',
-      bgColor: 'bg-success/10',
+      gradient: 'from-indigo-400 to-cyan-500',
+      shadow: 'shadow-indigo-500/30',
       route: '/admin/video'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#0f172a] text-slate-200 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-600/20 blur-[120px]"></div>
+        <div className="absolute top-[60%] -right-[10%] w-[40%] h-[40%] rounded-full bg-teal-600/20 blur-[120px]"></div>
+      </div>
+
+      <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-base-content mb-4">
-            Admin Panel
+        <div className="text-center mb-16 relative">
+          <div className="inline-block mb-4 p-2 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl">
+            <Zap className="w-8 h-8 text-amber-400" />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
+            Admin Dashboard
           </h1>
-          <p className="text-base-content/70 text-lg">
-            Manage coding problems on your platform
+          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-light">
+            Take full control of the coding platform. Manage problems, verify test cases, and curate the best learning experience.
           </p>
         </div>
 
         {/* Admin Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {adminOptions.map((option) => {
             const IconComponent = option.icon;
             return (
-              <div
+              <NavLink
+                to={option.route}
                 key={option.id}
-                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
+                className="group relative h-full block"
               >
-                <div className="card-body items-center text-center p-8">
-                  {/* Icon */}
-                  <div className={`${option.bgColor} p-4 rounded-full mb-4`}>
-                    <IconComponent size={32} className="text-base-content" />
+                {/* Glow bridge */}
+                <div className={`absolute -inset-0.5 bg-gradient-to-r ${option.gradient} rounded-3xl blur opacity-25 group-hover:opacity-60 transition duration-500`}></div>
+
+                {/* Card Content */}
+                <div className="relative h-full bg-[#1e293b]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center text-center transition-transform duration-500 hover:-translate-y-2">
+
+                  {/* Icon Container */}
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br ${option.gradient} shadow-lg ${option.shadow} text-white transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <IconComponent size={28} strokeWidth={2.5} />
                   </div>
-                  
+
                   {/* Title */}
-                  <h2 className="card-title text-xl mb-2">
+                  <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-colors">
                     {option.title}
                   </h2>
-                  
+
                   {/* Description */}
-                  <p className="text-base-content/70 mb-6">
+                  <p className="text-slate-400 leading-relaxed font-light mb-6 flex-grow">
                     {option.description}
                   </p>
-                  
-                  {/* Action Button */}
-                  <div className="card-actions">
-                    <div className="card-actions">
-                    <NavLink 
-                    to={option.route}
-                   className={`btn ${option.color} btn-wide`}
-                   >
-                   {option.title}
-                   </NavLink>
-                   </div>
+
+                  {/* Fake Button inside Link for visual appeal */}
+                  <div className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-sm font-semibold tracking-wide text-slate-300 group-hover:bg-white/10 group-hover:text-white transition-all">
+                    Access {option.title.split(' ')[0]} &rarr;
                   </div>
                 </div>
-              </div>
+              </NavLink>
             );
           })}
         </div>
-
       </div>
     </div>
   );

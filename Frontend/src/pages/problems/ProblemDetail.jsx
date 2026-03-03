@@ -32,7 +32,7 @@ const ProblemDetail = () => {
                 const data = await getProblemById(id);
                 setProblem(data);
                 if (data.startCode && data.startCode.length > 0) {
-                    const cppCode = data.startCode.find(c => c.language === 'c++');
+                    const cppCode = data.startCode.find(c => c.language.toLowerCase() === 'c++');
                     if (cppCode) {
                         setCode(cppCode.initialCode);
                     } else {
@@ -86,7 +86,7 @@ const ProblemDetail = () => {
         const newLanguage = e.target.value;
         setLanguage(newLanguage);
         if (problem && problem.startCode) {
-            const codeSnippet = problem.startCode.find(c => c.language === newLanguage);
+            const codeSnippet = problem.startCode.find(c => c.language.toLowerCase() === newLanguage.toLowerCase());
             if (codeSnippet) {
                 setCode(codeSnippet.initialCode);
             } else {
