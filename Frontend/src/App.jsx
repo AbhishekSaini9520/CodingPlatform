@@ -10,10 +10,10 @@ import Leaderboard from './pages/Leaderboard';
 import Discuss from './pages/Discuss';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
-import AdminPanel from "./components/AdminPanel";
-import AdminDelete from "./components/AdminDelete";
-import AdminUpdate from "./components/AdminUpdate";
-import AdminVideo from "./components/AdminVideo";
+import CreateProblem from "./InnerComponents/AdminPanel/CreateProblem.jsx";
+import AdminDelete from "./InnerComponents/AdminPanel/AdminDelete.jsx";
+import AdminUpdate from "./InnerComponents/AdminPanel/AdminUpdate.jsx";
+import AdminVideo from "./InnerComponents/AdminPanel/AdminVideo.jsx";
 import Admin from "./pages/Admin.jsx";
 
 import { AuthProvider } from './context/AuthContext';
@@ -36,7 +36,7 @@ function App() {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/admin" element={<Admin />} />
-                    <Route path="/admin/create" element={<AdminPanel />} />
+                    <Route path="/admin/create" element={<CreateProblem />} />
                     <Route path="/admin/delete" element={<AdminDelete />} />
                     <Route path="/admin/update" element={<AdminUpdate />} />
                     <Route path="/admin/video" element={<AdminVideo />} />

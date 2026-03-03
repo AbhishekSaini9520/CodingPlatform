@@ -5,25 +5,60 @@ const Submission = require("../models/submission")
 
 
 const createProblem = async (req, res) => {
-    const { title, description, difficulty, tags, visibleTestCases, hiddenTestCases, startCode, referenceSolution, problemCreator } = req.body;
-
     try {
+        const {
+            title,
+            description,
+            difficulty,
+            tags,
+            visibleTestCases,
+            hiddenTestCases,
+            startCode,
+            referenceSolution
+        } = req.body;
 
-        // console.log(referenceSolution);
-        for (const { language, completeSolution } of referenceSolution) {
+        // =========================
+        // 1️⃣ Basic Validation
+        // =========================
 
-            // source_code:
-            // language_id:
-            // stdin: 
-            // expectedOutput:
+        if (!title || !description || !difficulty || !tags) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
 
+        if (!Array.isArray(visibleTestCases) || visibleTestCases.length === 0) {
+            return res.status(400).json({ message: "Visible test cases required" });
+        }
 
-            console.log('p1');
+        if (!Array.isArray(hiddenTestCases) || hiddenTestCases.length === 0) {
+            return res.status(400).json({ message: "Hidden test cases required" });
+        }
+
+        if (!Array.isArray(referenceSolution) || referenceSolution.length === 0) {
+            return res.status(400).json({ message: "Reference solution required" });
+        }
+
+        // =========================
+        // 2️⃣ Run Judge Validation
+        // =========================
+
+        for (const solution of referenceSolution) {
+
+            const { language, completeSolution } = solution;
+
+            if (!language || !completeSolution) {
+                return res.status(400).json({
+                    message: "Invalid reference solution format"
+                });
+            }
+
             const languageId = getLanguageById(language);
-            console.log('p2');
-            // console.log(languageId);
-            // console.log('1');
-            // I am creating Batch submission
+
+            if (!languageId) {
+                return res.status(400).json({
+                    message: `Unsupported language: ${language}`
+                });
+            }
+
             const submissions = visibleTestCases.map((testcase) => ({
                 source_code: completeSolution,
                 language_id: languageId,
@@ -31,52 +66,140 @@ const createProblem = async (req, res) => {
                 expected_output: testcase.output
             }));
 
-            console.log('p3');
+            // Call Judge0 batch
             const submitResult = await submitBatch(submissions);
-            // console.log(submitResult);
-            console.log('p4');
-            const resultToken = submitResult.map((value) => value.token);
-            // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
-            // console.log(resultToken);
-            console.log('p5');
-            const testResult = await submitToken(resultToken);
-            // console.log(testResult);
-            console.log('p6');
-            // for (const test of testResult) {
-            //     if (test.status_id != 3) {
-            //         return res.status(400).send("Some Error Occured");
-            //     }
-            // }
 
-            console.log("FULL TEST RESULT:", testResult);
+            // 🚨 CRITICAL SAFETY CHECK
+            if (!submitResult || !Array.isArray(submitResult)) {
+                return res.status(502).json({
+                    message: "Judge API failed or rate limited",
+                    error: submitResult
+                });
+            }
+
+            const resultToken = submitResult.map((value) => value.token);
+
+            const testResult = await submitToken(resultToken);
+
+            if (!testResult || !Array.isArray(testResult)) {
+                return res.status(502).json({
+                    message: "Failed to fetch Judge results"
+                });
+            }
 
             for (const test of testResult) {
-                console.log("STATUS:", test.status_id);
-
-                if (test.status_id != 3) {
-                    return res.status(400).send(test);
+                if (test.status_id !== 3) {
+                    return res.status(400).json({
+                        message: "Reference solution failed test cases",
+                        failedTest: test
+                    });
                 }
             }
-            console.log('p7')
-
         }
 
-        // If the code run properly then we need to store it into database
-        console.log(req.result._id);
-        const userProblem = await Problem.create({
-            ...req.body,
+        // =========================
+        // 3️⃣ Save to Database
+        // =========================
+
+        const newProblem = await Problem.create({
+            title,
+            description,
+            difficulty,
+            tags,
+            visibleTestCases,
+            hiddenTestCases,
+            startCode,
+            referenceSolution,
             problemCreator: req.result._id
-        })
-        console.log('p8')
+        });
 
-        res.status(201).send("Problem Create Successfully")
+        return res.status(201).json({
+            message: "Problem created successfully",
+            problemId: newProblem._id
+        });
 
+    } catch (error) {
+        console.error("🔥 CREATE PROBLEM ERROR:", error);
+
+        return res.status(500).json({
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
-    catch (error) {
-        console.log("🔥 DB ERROR:", error.message);
-        res.status(400).send("Error gop gop" + error.message);
-    }
-}
+};
+// const createProblem = async (req, res) => {
+//     const { title, description, difficulty, tags, visibleTestCases, hiddenTestCases, startCode, referenceSolution, problemCreator } = req.body;
+
+//     try {
+
+//         // console.log(referenceSolution);
+//         for (const { language, completeSolution } of referenceSolution) {
+
+//             // source_code:
+//             // language_id:
+//             // stdin: 
+//             // expectedOutput:
+
+
+//             console.log('p1');
+//             const languageId = getLanguageById(language);
+//             console.log('p2');
+//             // console.log(languageId);
+//             // console.log('1');
+//             // I am creating Batch submission
+//             const submissions = visibleTestCases.map((testcase) => ({
+//                 source_code: completeSolution,
+//                 language_id: languageId,
+//                 stdin: testcase.input,
+//                 expected_output: testcase.output
+//             }));
+
+//             console.log('p3');
+//             const submitResult = await submitBatch(submissions);
+//             // console.log(submitResult);
+//             console.log('p4');
+//             const resultToken = submitResult.map((value) => value.token);
+//             // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
+//             // console.log(resultToken);
+//             console.log('p5');
+//             const testResult = await submitToken(resultToken);
+//             // console.log(testResult);
+//             console.log('p6');
+//             // for (const test of testResult) {
+//             //     if (test.status_id != 3) {
+//             //         return res.status(400).send("Some Error Occured");
+//             //     }
+//             // }
+
+//             console.log("FULL TEST RESULT:", testResult);
+
+//             for (const test of testResult) {
+//                 console.log("STATUS:", test.status_id);
+
+//                 if (test.status_id != 3) {
+//                     return res.status(400).send(test);
+//                 }
+//             }
+//             console.log('p7')
+
+//         }
+
+//         // If the code run properly then we need to store it into database
+//         console.log(req.result._id);
+//         const userProblem = await Problem.create({
+//             ...req.body,
+//             problemCreator: req.result._id
+//         })
+//         console.log('p8')
+
+//         res.status(201).send("Problem Create Successfully")
+
+//     }
+//     catch (error) {
+//         console.log("🔥 DB ERROR:", error.message);
+//         res.status(400).send("Error gop gop" + error.message);
+//     }
+// }
 
 const updateProblem = async (req, res) => {
 

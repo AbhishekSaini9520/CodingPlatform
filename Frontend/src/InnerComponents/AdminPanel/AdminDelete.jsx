@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axiosInstance from '../api/axiosInstance';
+import axiosInstance from '../../api/axiosInstance';
 
 const AdminDelete = () => {
   const [problems, setProblems] = useState([]);
