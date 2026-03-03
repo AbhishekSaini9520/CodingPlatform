@@ -26,12 +26,14 @@ export const getProblemById = async (id) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            `https://codingplatform-3ipe.onrender.com/problem/problemById/${id}`,
-            {
-                method: "GET",
-            }
-        );
+        const response = await axiosInstance.get(`/problem/problemById/${id}`);
+
+        // const response = await fetch(
+        //     `https://codingplatform-3ipe.onrender.com/problem/problemById/${id}`,
+        //     {
+        //         method: "GET",
+        //     }
+        // );
 
         if (!response.ok) {
             const errorData = await response.json();
