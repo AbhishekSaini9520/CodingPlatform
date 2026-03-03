@@ -6,12 +6,16 @@ import Tabs from '../../components/Tabs';
 import TestPanel from '../../components/TestPanel';
 import { Loader2 } from 'lucide-react';
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 // Sub-components
 import Toolbar from './components/Toolbar';
 import ProblemDescription from './components/ProblemDescription';
 import SubmissionsTab from './components/SubmissionsTab';
 import CodeEditorSection from './components/CodeEditorSection';
+
+
 
 const ProblemDetail = () => {
     const { id } = useParams();
@@ -25,6 +29,9 @@ const ProblemDetail = () => {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [runResult, setRunResult] = useState(null);
     const [submitResult, setSubmitResult] = useState(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -64,23 +71,54 @@ const ProblemDetail = () => {
         }
     };
 
+    // const handleSubmit = async () => {
+    //     setSubmitLoading(true);
+    //     setRunResult(null);
+    //     try {
+    //         const user_id = id;
+    //         if (!user_id) {
+
+    //         }
+    //         const result = await submitCode(id, code, language);
+    //         setSubmitResult(result);
+    //         if (result.testResults) {
+    //             setRunResult(result.testResults);
+    //         }
+    //         alert(`Submission Status: ${result.status}`);
+    //     } catch (err) {
+    //         console.error(err);
+    //         alert("Submission Failed: " + (err.message || "Unknown Error"));
+    //     } finally {
+    //         setSubmitLoading(false);
+    //     }
+    // };
     const handleSubmit = async () => {
+
+        // CHECK LOGIN FIRST
+        if (!user) {
+            navigate("/login", {
+                state: { from: location.pathname }
+            });
+            return;
+        }
+
         setSubmitLoading(true);
         setRunResult(null);
-        try {
-            const user_id = id;
-            if (!user_id) {
 
-            }
+        try {
             const result = await submitCode(id, code, language);
+
             setSubmitResult(result);
+
             if (result.testResults) {
                 setRunResult(result.testResults);
             }
+
             alert(`Submission Status: ${result.status}`);
+
         } catch (err) {
             console.error(err);
-            alert("Submission Failed: " + (err.message || "Unknown Error"));
+            alert("Submission Failed");
         } finally {
             setSubmitLoading(false);
         }

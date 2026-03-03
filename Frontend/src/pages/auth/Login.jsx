@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from "react-router-dom";
+
 
 const Login = () => {
+
+    const location = useLocation();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -21,7 +25,10 @@ const Login = () => {
         try {
             await login(formData);
             // console.log(formData);
-            navigate('/problems');
+            const redirectPath =
+                location.state?.from || "/problems";
+
+            navigate(redirectPath, { replace: true });
         } catch (err) {
             setError(err || 'Invalid credentials. Please try again.');
         } finally {
