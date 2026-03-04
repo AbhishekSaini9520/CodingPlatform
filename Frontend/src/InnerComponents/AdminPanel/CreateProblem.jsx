@@ -1,212 +1,265 @@
-import { useState } from "react";
-import axiosInstance from '../../api/axiosInstance';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import axiosClient from '../../api/axiosInstance';
+import { useNavigate } from 'react-router';
+import { useState } from 'react';
 
-function CreateProblem({ onClose }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    difficulty: "easy",
-    tags: "Array",
-    visibleTestCases: [
-      { input: "", output: "", explanation: "" }
-    ],
-    hiddenTestCases: [
-      { input: "", output: "" }
-    ],
-    startCode: [
-      { language: "c++", initialCode: "" }
-    ],
-    referenceSolution: [
-      { language: "c++", completeSolution: "" }
-    ],
-    problemCreator: "68d6d5c5bc03f2d762f8c243" // replace dynamically later
+// --------------------
+// Language Config
+// --------------------
+const LANGUAGES = ['C++', 'Java', 'JavaScript', 'Python'];
+
+// --------------------
+// Zod Schema
+// --------------------
+const problemSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+  tags: z.enum(['Array', 'LinkList', 'Graph', 'DP', 'Math']),
+
+  visibleTestCases: z.array(
+    z.object({
+      input: z.string().min(1, 'Input is required'),
+      output: z.string().min(1, 'Output is required'),
+      explanation: z.string().min(1, 'Explanation is required')
+    })
+  ).min(1),
+
+  hiddenTestCases: z.array(
+    z.object({
+      input: z.string().min(1),
+      output: z.string().min(1)
+    })
+  ).min(1),
+
+  startCode: z.array(
+    z.object({
+      language: z.enum(['C++', 'Java', 'JavaScript', 'Python']),
+      initialCode: z.string().min(1)
+    })
+  ).length(4),
+
+  referenceSolution: z.array(
+    z.object({
+      language: z.enum(['C++', 'Java', 'JavaScript', 'Python']),
+      completeSolution: z.string().min(1)
+    })
+  ).length(4)
+});
+
+function CreateProblem() {
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    resolver: zodResolver(problemSchema),
+    defaultValues: {
+      startCode: LANGUAGES.map(lang => ({
+        language: lang,
+        initialCode: ''
+      })),
+      referenceSolution: LANGUAGES.map(lang => ({
+        language: lang,
+        completeSolution: ''
+      }))
+    }
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { fields: visibleFields, append: appendVisible, remove: removeVisible } =
+    useFieldArray({ control, name: 'visibleTestCases' });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const { fields: hiddenFields, append: appendHidden, remove: removeHidden } =
+    useFieldArray({ control, name: 'hiddenTestCases' });
 
-  const handleVisibleChange = (index, field, value) => {
-    const updated = [...formData.visibleTestCases];
-    updated[index][field] = value;
-    setFormData({ ...formData, visibleTestCases: updated });
-  };
-
-  const handleHiddenChange = (index, field, value) => {
-    const updated = [...formData.hiddenTestCases];
-    updated[index][field] = value;
-    setFormData({ ...formData, hiddenTestCases: updated });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
+  const onSubmit = async (data) => {
     try {
-      console.log("Submitting:", formData);
+      setIsSubmitting(true);
+      setSubmitError(null);
 
-      await axiosInstance.post("/problem/create", formData);
-
-      setSuccess("Problem created successfully!");
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to create problem"
+      // console.log("prob creating ...")
+      // console.log(data);
+      await axiosClient.post('/problem/create', data);
+      // console.log("problem created");
+      alert('Problem Created Successfully 🚀');
+      navigate('/');
+    } catch (error) {
+      setSubmitError(
+        error.response?.data?.message || 'Failed to create problem'
       );
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-[#1e293b] w-[90%] max-h-[90vh] overflow-y-auto rounded-xl p-6">
-        <h2 className="text-2xl font-bold mb-4 text-white">Create Problem</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-10">
+      <div className="max-w-5xl mx-auto space-y-8">
 
-        {error && <p className="text-red-400">{error}</p>}
-        {success && <p className="text-green-400">{success}</p>}
+        <h1 className="text-4xl font-bold text-center text-cyan-400 tracking-wide">
+          Create New Problem
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {submitError && (
+          <div className="bg-red-500/20 border border-red-500 p-4 rounded-lg">
+            {submitError}
+          </div>
+        )}
 
-          <input
-            name="title"
-            placeholder="Title"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
-          <textarea
-            name="description"
-            placeholder="Description"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
+          {/* ---------------- Basic Info ---------------- */}
+          <div className="bg-gray-800/60 backdrop-blur-lg p-6 rounded-xl shadow-xl border border-gray-700 space-y-4">
+            <h2 className="text-xl font-semibold text-cyan-300">
+              Basic Information
+            </h2>
 
-          <select
-            name="difficulty"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
+            <input
+              {...register('title')}
+              placeholder="Problem Title"
+              className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 outline-none"
+            />
 
-          <select
-            name="tags"
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          >
-            <option value="Array">Array</option>
-            <option value="LinkList">Linked List</option>
-            <option value="Graph">Graph</option>
-            <option value="DP">Dynamic Programming</option>
-            <option value="Math">Math</option>
-          </select>
+            <textarea
+              {...register('description')}
+              placeholder="Problem Description"
+              rows={5}
+              className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:border-cyan-400 outline-none"
+            />
 
-          <h3 className="text-lg text-white mt-4">Visible Test Case</h3>
+            <div className="flex gap-4">
+              <select
+                {...register('difficulty')}
+                className="flex-1 p-3 bg-gray-900 rounded-lg border border-gray-700"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
 
-          <textarea
-            placeholder="Input"
-            onChange={(e) =>
-              handleVisibleChange(0, "input", e.target.value)
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <textarea
-            placeholder="Output"
-            onChange={(e) =>
-              handleVisibleChange(0, "output", e.target.value)
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <textarea
-            placeholder="Explanation"
-            onChange={(e) =>
-              handleVisibleChange(0, "explanation", e.target.value)
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <h3 className="text-lg text-white mt-4">Hidden Test Case</h3>
-
-          <textarea
-            placeholder="Input"
-            onChange={(e) =>
-              handleHiddenChange(0, "input", e.target.value)
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <textarea
-            placeholder="Output"
-            onChange={(e) =>
-              handleHiddenChange(0, "output", e.target.value)
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <h3 className="text-lg text-white mt-4">Start Code (C++)</h3>
-
-          <textarea
-            placeholder="Initial Code"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                startCode: [
-                  { language: "c++", initialCode: e.target.value }
-                ]
-              })
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <h3 className="text-lg text-white mt-4">Reference Solution (C++)</h3>
-
-          <textarea
-            placeholder="Complete Solution"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                referenceSolution: [
-                  { language: "c++", completeSolution: e.target.value }
-                ]
-              })
-            }
-            className="w-full p-2 rounded bg-gray-800 text-white"
-          />
-
-          <div className="flex justify-between mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-600 px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 px-4 py-2 rounded"
-            >
-              {loading ? "Creating..." : "Create Problem"}
-            </button>
+              <select
+                {...register('tags')}
+                className="flex-1 p-3 bg-gray-900 rounded-lg border border-gray-700"
+              >
+                <option value="Array">Array</option>
+                <option value="LinkList">Linked List</option>
+                <option value="Graph">Graph</option>
+                <option value="DP">DP</option>
+                <option value="Math">Math</option>
+              </select>
+            </div>
           </div>
 
+          {/* ---------------- Test Cases ---------------- */}
+          <div className="bg-gray-800/60 p-6 rounded-xl shadow-xl border border-gray-700 space-y-6">
+            <h2 className="text-xl font-semibold text-cyan-300">
+              Test Cases
+            </h2>
+
+            {/* Visible */}
+            <div>
+              <button
+                type="button"
+                onClick={() =>
+                  appendVisible({ input: '', output: '', explanation: '' })
+                }
+                className="mb-3 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 rounded-lg transition"
+              >
+                Add Visible Case
+              </button>
+
+              {visibleFields.map((field, index) => (
+                <div key={field.id} className="space-y-2 mb-4">
+                  <textarea
+                    {...register(`visibleTestCases.${index}.input`)}
+                    placeholder="Input"
+                    className="w-full p-2 bg-gray-900 rounded-lg font-mono"
+                  />
+                  <textarea
+                    {...register(`visibleTestCases.${index}.output`)}
+                    placeholder="Output"
+                    className="w-full p-2 bg-gray-900 rounded-lg font-mono"
+                  />
+                  <textarea
+                    {...register(`visibleTestCases.${index}.explanation`)}
+                    placeholder="Explanation"
+                    className="w-full p-2 bg-gray-900 rounded-lg"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Hidden */}
+            <div>
+              <button
+                type="button"
+                onClick={() => appendHidden({ input: '', output: '' })}
+                className="mb-3 px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg transition"
+              >
+                Add Hidden Case
+              </button>
+
+              {hiddenFields.map((field, index) => (
+                <div key={field.id} className="space-y-2 mb-4">
+                  <textarea
+                    {...register(`hiddenTestCases.${index}.input`)}
+                    placeholder="Input"
+                    className="w-full p-2 bg-gray-900 rounded-lg font-mono"
+                  />
+                  <textarea
+                    {...register(`hiddenTestCases.${index}.output`)}
+                    placeholder="Output"
+                    className="w-full p-2 bg-gray-900 rounded-lg font-mono"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ---------------- Code Section ---------------- */}
+          <div className="bg-gray-800/60 p-6 rounded-xl shadow-xl border border-gray-700 space-y-6">
+            <h2 className="text-xl font-semibold text-cyan-300">
+              Code Templates & Reference Solutions
+            </h2>
+
+            {LANGUAGES.map((lang, index) => (
+              <div key={lang} className="space-y-3">
+                <h3 className="text-lg font-medium text-purple-400">
+                  {lang}
+                </h3>
+
+                <textarea
+                  {...register(`startCode.${index}.initialCode`)}
+                  placeholder="Initial Code Template"
+                  rows={6}
+                  className="w-full p-3 bg-black rounded-lg font-mono border border-gray-700 focus:border-purple-500 outline-none"
+                />
+
+                <textarea
+                  {...register(`referenceSolution.${index}.completeSolution`)}
+                  placeholder="Reference Solution"
+                  rows={6}
+                  className="w-full p-3 bg-black rounded-lg font-mono border border-gray-700 focus:border-green-500 outline-none"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:opacity-90 rounded-xl font-semibold text-lg transition"
+          >
+            {isSubmitting ? 'Creating...' : 'Create Problem 🚀'}
+          </button>
         </form>
       </div>
     </div>

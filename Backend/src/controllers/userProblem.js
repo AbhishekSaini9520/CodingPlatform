@@ -20,18 +20,20 @@ const createProblem = async (req, res) => {
         // =========================
         // 1️⃣ Basic Validation
         // =========================
-
+        console.log("checking info");
         if (!title || !description || !difficulty || !tags) {
             return res.status(400).json({ message: "Missing required fields" });
         }
-
+        console.log("1");
         if (!Array.isArray(visibleTestCases) || visibleTestCases.length === 0) {
             return res.status(400).json({ message: "Visible test cases required" });
         }
+        console.log("2");
 
         if (!Array.isArray(hiddenTestCases) || hiddenTestCases.length === 0) {
             return res.status(400).json({ message: "Hidden test cases required" });
         }
+        console.log("3");
 
         if (!Array.isArray(referenceSolution) || referenceSolution.length === 0) {
             return res.status(400).json({ message: "Reference solution required" });
@@ -40,9 +42,9 @@ const createProblem = async (req, res) => {
         // =========================
         // 2️⃣ Run Judge Validation
         // =========================
-
+        console.log("info come perfect");
         for (const solution of referenceSolution) {
-
+            // console.log(solution);
             const { language, completeSolution } = solution;
 
             if (!language || !completeSolution) {
@@ -65,7 +67,7 @@ const createProblem = async (req, res) => {
                 stdin: testcase.input,
                 expected_output: testcase.output
             }));
-
+            // console.log(submissions);
             // Call Judge0 batch
             const submitResult = await submitBatch(submissions);
 
@@ -76,7 +78,7 @@ const createProblem = async (req, res) => {
                     error: submitResult
                 });
             }
-
+            // console.log(submitResult);
             const resultToken = submitResult.map((value) => value.token);
 
             const testResult = await submitToken(resultToken);
@@ -86,7 +88,7 @@ const createProblem = async (req, res) => {
                     message: "Failed to fetch Judge results"
                 });
             }
-
+            // console.log(testResult);
             for (const test of testResult) {
                 if (test.status_id !== 3) {
                     return res.status(400).json({
@@ -96,7 +98,7 @@ const createProblem = async (req, res) => {
                 }
             }
         }
-
+        console.log("judge0 proceed finish");
         // =========================
         // 3️⃣ Save to Database
         // =========================
