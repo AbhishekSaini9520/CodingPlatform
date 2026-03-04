@@ -6,9 +6,10 @@ const redisClient = require("../config/redis")
 const adminMiddleware = async (req, res, next) => {
     try {
 
+        console.log(req.body);
         const { token } = req.cookies;
         // console.log(req.body)
-        // console.log('1');
+        console.log('1');
 
         if (!token)
             throw new Error("Token is not Present");
@@ -32,13 +33,13 @@ const adminMiddleware = async (req, res, next) => {
         // const IsBlocked = await redisClient.exists(`token:${token}`);
         // if (IsBlocked)
         //     throw new Error("Invalid Token");
-        // console.log('7');
+        console.log('7');
         req.result = result;
-
+        // console.log('8');
         next();
     }
     catch (error) {
-        res.status(400).send("Error: " + error);
+        res.status(400).send("Error: " + error.message);
     }
 }
 

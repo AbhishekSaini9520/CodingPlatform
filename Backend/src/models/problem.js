@@ -62,7 +62,7 @@ const problemSchema = new Schema({
         },
         completeSolution: {
             type: String,
-            requred: true
+            required: true
         }
     }],
     problemCreator: {
