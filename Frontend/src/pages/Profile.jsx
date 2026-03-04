@@ -19,7 +19,9 @@ const Profile = () => {
     }
 
     const solvedCount = user.problemSolved?.length || 0;
-    console.log(user);
+    const globalRank = user.rank || 0;
+    const globalTopPercent = user.topPercent || 0;
+    // console.log(user);
     // console.log(solvedCount);
     const joinDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
         month: 'long',
@@ -105,7 +107,7 @@ const Profile = () => {
                             <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4 group-hover:scale-110 transition-transform">
                                 <BookOpen className="h-6 w-6" />
                             </div>
-                            <p className="text-3xl font-extrabold text-gray-900 dark:text-white">0</p>
+                            <p className="text-3xl font-extrabold text-gray-900 dark:text-white">soon</p>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Contests Attended</p>
                         </div>
 
@@ -113,7 +115,7 @@ const Profile = () => {
                             <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-4 group-hover:scale-110 transition-transform">
                                 <Award className="h-6 w-6" />
                             </div>
-                            <p className="text-3xl font-extrabold text-gray-900 dark:text-white">Top 0%</p>
+                            <p className="text-3xl font-extrabold text-gray-900 dark:text-white">Top {globalTopPercent}%</p>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Global Rank</p>
                         </div>
                     </div>

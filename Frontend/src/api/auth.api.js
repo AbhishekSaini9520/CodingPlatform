@@ -38,3 +38,13 @@ export const getProfile = async () => {
         throw error.response?.data || error.message;
     }
 };
+
+export const getUserRank = async () => {
+    try {
+        const response = await axiosInstance.get('/api/rank');
+        return response.data;
+    }
+    catch (error) {
+        throw error.response?.data || error.message;
+    }
+}

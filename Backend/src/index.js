@@ -8,6 +8,9 @@ const userAuth = require('./routes/userAuth')
 const redisClient = require('./config/redis')
 const problemRouter = require('./routes/problemCreator')
 const submitRouter = require('./routes/submit')
+const rankRoute = require("./routes/rankRoute");
+
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -30,6 +33,7 @@ app.use(cors({
 app.use('/user', userAuth);
 app.use('/problem', problemRouter);
 app.use('/submission', submitRouter);
+app.use("/api", rankRoute);
 
 const InitalizeConnection = async () => {
   try {
@@ -66,3 +70,4 @@ InitalizeConnection();
 // .catch((error) => {
 //     console.log(error);
 // })
+

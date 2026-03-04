@@ -54,7 +54,7 @@ export const getProblemById = async (id) => {
 export const getSolvedQuestion = async () => {
     try {
         const response = await axiosInstance.get('/problem/problemSolvedByUser')
-        console.log("profile ko fetch kr liya for countProblems " + response);
+        // console.log("response is computed" + response.data);
         return response.data;
     } catch (error) {
         throw error.response?.data || "Failed to fetch solved questions";

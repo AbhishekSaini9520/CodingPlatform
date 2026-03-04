@@ -1,3 +1,4 @@
+const User = require("../models/user");
 const Problem = require("../models/problem");
 const Submission = require("../models/submission");
 const { getLanguageById, submitBatch, submitToken } = require("../utils/problemUtility");
@@ -83,10 +84,27 @@ const submitCode = async (req, res) => {
         // ProblemId ko insert karenge userSchema ke problemSolved mein if it is not persent there.
 
         // req.result == user Information
-        if (status === 'accepted' && !req.result.problemSolved.includes(problemId)) {
-            req.result.problemSolved.push(problemId);
-            await req.result.save();
+        // update solved problems if accepted
+        if (status === "accepted") {
+
+            const user = await User.findById(userId);
+
+            // check already solved
+            const alreadySolved =
+                user.problemSolved.some(
+                    id => id.toString() === problemId.toString()
+                );
+
+            if (!alreadySolved) {
+                user.problemSolved.push(problemId);
+
+                //important for ranking
+                user.solvedCount += 1;
+
+                await user.save();
+            }
         }
+
 
         res.status(201).send({ ...submittedResult.toObject(), testResults: testResult });
 

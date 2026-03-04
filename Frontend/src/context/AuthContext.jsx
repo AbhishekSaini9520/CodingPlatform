@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, logoutUser, getProfile, registerUser } from '../api/auth.api';
+import { loginUser, logoutUser, getProfile, registerUser, getUserRank } from '../api/auth.api';
 import { getSolvedQuestion } from '../api/problem.api';
 
 const AuthContext = createContext();
@@ -13,14 +13,23 @@ export const AuthProvider = ({ children }) => {
             // get basic user
             const profileData = await getProfile();
 
+            // console.log("This is the Profile Data " + profileData)
+
             // get solved problems
             const solvedData = await getSolvedQuestion();
+
+            // get user rank
+            const rankData = await getUserRank();
 
             // attach solved problems to user
             const updatedUser = {
                 ...profileData,
-                problemSolved: solvedData.problemSolved || []
+                problemSolved: solvedData || [],
+                rank: rankData.rank,
+                topPercent: rankData.topPercent,
             };
+
+            // console.log(updatedUser);
 
             setUser(updatedUser);
 
@@ -39,11 +48,8 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const data = await loginUser(credentials);
-            if (data.user) {
-                setUser(data.user);
-            } else {
-                await loadUser();
-            }
+
+            await loadUser();
             return data;
         } catch (error) {
             throw error;
@@ -53,11 +59,9 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const data = await registerUser(userData);
-            if (data.user) {
-                setUser(data.user);
-            } else {
-                await loadUser();
-            }
+
+            await loadUser();
+
             return data;
         } catch (error) {
             throw error;
@@ -82,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    // console.log("inside the useAuth");
+    // console.log(context);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');
     }

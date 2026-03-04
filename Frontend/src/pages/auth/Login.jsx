@@ -23,8 +23,8 @@ const Login = () => {
         setError(null);
 
         try {
-            await login(formData);
             // console.log(formData);
+            await login(formData);
             const redirectPath =
                 location.state?.from || "/problems";
 
