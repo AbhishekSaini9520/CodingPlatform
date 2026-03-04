@@ -11,11 +11,13 @@ const ProblemList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const { user } = useAuth();
 
+    console.log(user);
+
     useEffect(() => {
         const fetchProblems = async () => {
             try {
                 const data = await getAllProblems();
-                console.log(data);
+                // console.log(data);
                 setProblems(data);
             } catch (err) {
                 setError(err.message || 'Failed to load problems');
@@ -31,6 +33,7 @@ const ProblemList = () => {
         problem.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // console.log(filteredProblems)
 
     const getDifficultyColor = (difficulty) => {
         switch (difficulty.toLowerCase()) {
@@ -98,7 +101,7 @@ const ProblemList = () => {
                             {filteredProblems.map((problem) => (
                                 <tr key={problem._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {user?.problemSolved?.includes(problem._id) ? (
+                                        {user?.problemSolved?.some((p) => p._id === problem._id) ? (
                                             <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-50 dark:fill-green-900/20" />
                                         ) : (
                                             <div className="h-2.5 w-2.5 ml-1.5 rounded-full bg-gray-300 dark:bg-gray-600" aria-hidden="true"></div>
