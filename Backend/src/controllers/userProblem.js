@@ -199,7 +199,7 @@ const createProblem = async (req, res) => {
 const updateProblem = async (req, res) => {
 
     const { id } = req.params;
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
 
@@ -216,11 +216,11 @@ const updateProblem = async (req, res) => {
         } = req.body;
 
         const parsedTags = Array.isArray(tags) ? tags.join(",") : tags;
-
+        // console.log("1");
         if (!id) {
             return res.status(400).send("Missing ID Field");
         }
-
+        // console.log("2");
         const problem = await Problem.findById(id);
 
         if (!problem) {
@@ -233,16 +233,16 @@ const updateProblem = async (req, res) => {
         ].filter(
             (test) => test && test.input !== undefined && test.output !== undefined
         );
-
+        // console.log("3");
         // Find C++ reference solution
         const cppSolution = referenceSolution.find(
-            (sol) => sol.language === "c++"
+            (sol) => sol.language === "C++"
         );
-
+        // console.log("4");
         if (!cppSolution) {
             return res.status(400).send("C++ reference solution is required");
         }
-
+        // console.log("5");
         const { completeSolution } = cppSolution;
 
         const languageId = getLanguageById("c++");
@@ -250,7 +250,7 @@ const updateProblem = async (req, res) => {
         if (!languageId) {
             return res.status(400).send("C++ language id not found");
         }
-
+        // console.log("before submissions");
         // Create Judge0 submissions
         const submissions = allTestCases.map((testcase) => ({
             source_code: completeSolution,
@@ -259,7 +259,7 @@ const updateProblem = async (req, res) => {
             expected_output: testcase.output
         }));
 
-        // console.log(submissions);
+        console.log(submissions);
         if(submissions.length!==0){
             const submitResult = await submitBatch(submissions);
             // console.log("after judge0");
@@ -305,6 +305,7 @@ const updateProblem = async (req, res) => {
             },
             { new: true, runValidators: true }
         );
+        console.log("updated Probem updatedProblem");
 
         return res.status(200).json(updatedProblem);
 

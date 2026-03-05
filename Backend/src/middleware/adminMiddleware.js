@@ -6,7 +6,7 @@ const redisClient = require("../config/redis")
 const adminMiddleware = async (req, res, next) => {
     try {
 
-        console.log(req.body);
+        // console.log(req.body);
         const { token } = req.cookies;
         // console.log('1');
 
