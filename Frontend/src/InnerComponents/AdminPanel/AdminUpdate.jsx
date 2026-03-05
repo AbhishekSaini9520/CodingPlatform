@@ -112,12 +112,12 @@ const handleSelect = async (id) => {
             ? selectedProblem.tags.split(",").map((t) => t.trim())
             : selectedProblem.tags
       };
-
+      // console.log("call to backend");
       await axiosInstance.put(
         `/problem/update/${selectedProblem._id}`,
         updatedProblem
       );
-
+      // console.log("back from backend");
       alert("Problem updated successfully!");
 
       setSelectedProblem(null);
@@ -125,7 +125,7 @@ const handleSelect = async (id) => {
 
     } catch (err) {
 
-      console.error(err);
+      console.error(err.message);
       setError("Failed to update problem");
 
     }

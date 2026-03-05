@@ -199,7 +199,7 @@ const createProblem = async (req, res) => {
 const updateProblem = async (req, res) => {
 
     const { id } = req.params;
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
 
@@ -216,11 +216,11 @@ const updateProblem = async (req, res) => {
         } = req.body;
 
         const parsedTags = Array.isArray(tags) ? tags.join(",") : tags;
-
+        // console.log("1");
         if (!id) {
             return res.status(400).send("Missing ID Field");
         }
-
+        // console.log("2");
         const problem = await Problem.findById(id);
 
         if (!problem) {
@@ -233,34 +233,35 @@ const updateProblem = async (req, res) => {
         ].filter(
             (test) => test && test.input !== undefined && test.output !== undefined
         );
-
+        // console.log(allTestCases);
+        // console.log("3");
         // Find C++ reference solution
-        const cppSolution = referenceSolution.find(
-            (sol) => sol.language === "c++"
-        );
+        
 
-        if (!cppSolution) {
-            return res.status(400).send("C++ reference solution is required");
-        }
+        if(allTestCases.length!==0){
+            const cppSolution = referenceSolution.find(
+                (sol) => sol.language === "C++"
+            );
+            // console.log("4");
+            if (!cppSolution) {
+                return res.status(400).send("C++ reference solution is required");
+            }
+            // console.log("5");
+            const { completeSolution } = cppSolution;
 
-        const { completeSolution } = cppSolution;
+            const languageId = getLanguageById("c++");
 
-        const languageId = getLanguageById("c++");
-
-        if (!languageId) {
-            return res.status(400).send("C++ language id not found");
-        }
-
-        // Create Judge0 submissions
-        const submissions = allTestCases.map((testcase) => ({
-            source_code: completeSolution,
-            language_id: languageId,
-            stdin: testcase.input,
-            expected_output: testcase.output
-        }));
-
-        // console.log(submissions);
-        if (submissions.length !== 0) {
+            if (!languageId) {
+                return res.status(400).send("C++ language id not found");
+            }
+            // console.log("before submissions");
+            // Create Judge0 submissions
+            const submissions = allTestCases.map((testcase) => ({
+                source_code: completeSolution,
+                language_id: languageId,
+                stdin: testcase.input,
+                expected_output: testcase.output
+            }));
             const submitResult = await submitBatch(submissions);
             // console.log("after judge0");
             if (!submitResult || !Array.isArray(submitResult)) {
@@ -305,6 +306,7 @@ const updateProblem = async (req, res) => {
             },
             { new: true, runValidators: true }
         );
+        // console.log("updated Probem updatedProblem");
 
         return res.status(200).json(updatedProblem);
 
