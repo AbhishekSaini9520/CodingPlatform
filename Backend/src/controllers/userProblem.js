@@ -233,34 +233,35 @@ const updateProblem = async (req, res) => {
         ].filter(
             (test) => test && test.input !== undefined && test.output !== undefined
         );
+        // console.log(allTestCases);
         // console.log("3");
         // Find C++ reference solution
-        const cppSolution = referenceSolution.find(
-            (sol) => sol.language === "C++"
-        );
-        // console.log("4");
-        if (!cppSolution) {
-            return res.status(400).send("C++ reference solution is required");
-        }
-        // console.log("5");
-        const { completeSolution } = cppSolution;
+        
 
-        const languageId = getLanguageById("c++");
+        if(allTestCases.length!==0){
+            const cppSolution = referenceSolution.find(
+                (sol) => sol.language === "C++"
+            );
+            // console.log("4");
+            if (!cppSolution) {
+                return res.status(400).send("C++ reference solution is required");
+            }
+            // console.log("5");
+            const { completeSolution } = cppSolution;
 
-        if (!languageId) {
-            return res.status(400).send("C++ language id not found");
-        }
-        // console.log("before submissions");
-        // Create Judge0 submissions
-        const submissions = allTestCases.map((testcase) => ({
-            source_code: completeSolution,
-            language_id: languageId,
-            stdin: testcase.input,
-            expected_output: testcase.output
-        }));
+            const languageId = getLanguageById("c++");
 
-        console.log(submissions);
-        if(submissions.length!==0){
+            if (!languageId) {
+                return res.status(400).send("C++ language id not found");
+            }
+            // console.log("before submissions");
+            // Create Judge0 submissions
+            const submissions = allTestCases.map((testcase) => ({
+                source_code: completeSolution,
+                language_id: languageId,
+                stdin: testcase.input,
+                expected_output: testcase.output
+            }));
             const submitResult = await submitBatch(submissions);
             // console.log("after judge0");
             if (!submitResult || !Array.isArray(submitResult)) {
@@ -305,7 +306,7 @@ const updateProblem = async (req, res) => {
             },
             { new: true, runValidators: true }
         );
-        console.log("updated Probem updatedProblem");
+        // console.log("updated Probem updatedProblem");
 
         return res.status(200).json(updatedProblem);
 
