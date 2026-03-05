@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
+  const profileImage = user?.profileImage;
 
   const handleLogout = async () => {
     await logout();
@@ -59,7 +60,7 @@ const Navbar = () => {
                 className="flex items-center gap-1 cursor-pointer hover:text-white transition-colors"
               >
                 <img
-                  src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                  src={profileImage || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
                   alt="profile"
                   className="w-8 h-8 rounded-full border border-gray-600"
                 />
@@ -83,7 +84,7 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  {user.role=='admin' && <Link
+                  {user.role == 'admin' && <Link
                     to="/admin"
                     onClick={() => setOpen(false)}
                     className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
