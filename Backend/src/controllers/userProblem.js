@@ -132,70 +132,189 @@ const createProblem = async (req, res) => {
 };
 
 
+// const updateProblem = async (req, res) => {
+
+//     const { id } = req.params;
+//     console.log(req.body);
+
+//     try {
+
+//         const { title, description, difficulty, tags, visibleTestCases, hiddenTestCases, startCode, referenceSolution, problemCreator } = req.body;
+
+//         if (!id) {
+//             return res.status(400).send("Missing ID Field");
+//         }
+
+//         const DsaProblem = await Problem.findById(id);
+//         if (!DsaProblem)
+//             return res.status(404).send("Id is not present in server");
+
+//         // console.log(referenceSolution);
+//         for (const { language, completeSolution } of referenceSolution) {
+
+//             // source_code:
+//             // language_id:
+//             // stdin: 
+//             // expectedOutput:
+
+//             const languageId = getLanguageById(language);
+//             // console.log(languageId);
+
+//             // I am creating Batch submission
+//             const submissions = visibleTestCases.map((testcase) => ({
+//                 source_code: completeSolution,
+//                 language_id: languageId,
+//                 stdin: testcase.input,
+//                 expected_output: testcase.output
+//             }));
+
+//             const submitResult = await submitBatch(submissions);
+//             // console.log(submitResult);
+
+//             const resultToken = submitResult.map((value) => value.token);
+//             // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
+//             // console.log(resultToken);
+
+//             const testResult = await submitToken(resultToken);
+//             // console.log(testResult);
+
+//             for (const test of testResult) {
+//                 if (test.status_id != 3) {
+//                     return res.status(400).send("Some Error Occured status_id != 3");
+//                 }
+//             }
+
+//         }
+
+//         const newProblem = await Problem.findByIdAndUpdate(id, { ...req.body }, { runValidators: true, new: true });
+
+//         res.status(200).send(newProblem);
+
+//     }
+//     catch (err) {
+//         return res.status(500).send("Error " + err);
+//     }
+
+// }
 const updateProblem = async (req, res) => {
 
     const { id } = req.params;
+    console.log(req.body);
 
     try {
 
-        const { title, description, difficulty, tags, visibleTestCases, hiddenTestCases, startCode, referenceSolution, problemCreator } = req.body;
+        const {
+            title,
+            description,
+            difficulty,
+            tags,
+            visibleTestCases = [],
+            hiddenTestCases = [],
+            startCode = [],
+            referenceSolution = [],
+            problemCreator
+        } = req.body;
+
+        const parsedTags = Array.isArray(tags) ? tags.join(",") : tags;
 
         if (!id) {
             return res.status(400).send("Missing ID Field");
         }
 
-        const DsaProblem = await Problem.findById(id);
-        if (!DsaProblem)
-            return res.status(404).send("Id is not present in server");
+        const problem = await Problem.findById(id);
 
-        // console.log(referenceSolution);
-        for (const { language, completeSolution } of referenceSolution) {
-
-            // source_code:
-            // language_id:
-            // stdin: 
-            // expectedOutput:
-
-            const languageId = getLanguageById(language);
-            // console.log(languageId);
-
-            // I am creating Batch submission
-            const submissions = visibleTestCases.map((testcase) => ({
-                source_code: completeSolution,
-                language_id: languageId,
-                stdin: testcase.input,
-                expected_output: testcase.output
-            }));
-
-            const submitResult = await submitBatch(submissions);
-            // console.log(submitResult);
-
-            const resultToken = submitResult.map((value) => value.token);
-            // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
-            // console.log(resultToken);
-
-            const testResult = await submitToken(resultToken);
-            // console.log(testResult);
-
-            for (const test of testResult) {
-                if (test.status_id != 3) {
-                    return res.status(400).send("Some Error Occured status_id != 3");
-                }
-            }
-
+        if (!problem) {
+            return res.status(404).send("Problem not found");
         }
 
-        const newProblem = await Problem.findByIdAndUpdate(id, { ...req.body }, { runValidators: true, new: true });
+        // Merge visible + hidden testcases
+        const allTestCases = [
+            ...(hiddenTestCases || [])
+        ].filter(
+            (test) => test && test.input !== undefined && test.output !== undefined
+        );
 
-        res.status(200).send(newProblem);
+        // Find C++ reference solution
+        const cppSolution = referenceSolution.find(
+            (sol) => sol.language === "c++"
+        );
+
+        if (!cppSolution) {
+            return res.status(400).send("C++ reference solution is required");
+        }
+
+        const { completeSolution } = cppSolution;
+
+        const languageId = getLanguageById("c++");
+
+        if (!languageId) {
+            return res.status(400).send("C++ language id not found");
+        }
+
+        // Create Judge0 submissions
+        const submissions = allTestCases.map((testcase) => ({
+            source_code: completeSolution,
+            language_id: languageId,
+            stdin: testcase.input,
+            expected_output: testcase.output
+        }));
+
+        // console.log(submissions);
+        if(submissions.length!==0){
+            const submitResult = await submitBatch(submissions);
+            // console.log("after judge0");
+            if (!submitResult || !Array.isArray(submitResult)) {
+                return res.status(500).send("Judge0 submission failed");
+            }
+
+            const resultTokens = submitResult.map((value) => value.token);
+
+            const testResults = await submitToken(resultTokens);
+
+            for (const test of testResults) {
+
+                if (test.status_id !== 3) {
+                    return res.status(400).json({
+                        message: "C++ reference solution failed on testcases",
+                        judgeResult: test
+                    });
+                }
+
+            }
+        }
+        
+
+        // Remove Mongo _id fields
+        const cleanVisible = (visibleTestCases || []).map(({ _id, ...rest }) => rest);
+        const cleanHidden = (hiddenTestCases || []).map(({ _id, ...rest }) => rest);
+        const cleanStartCode = (startCode || []).map(({ _id, ...rest }) => rest);
+        const cleanReference = (referenceSolution || []).map(({ _id, ...rest }) => rest);
+
+        const updatedProblem = await Problem.findByIdAndUpdate(
+            id,
+            {
+                title,
+                description,
+                difficulty,
+                tags: parsedTags,
+                visibleTestCases: cleanVisible,
+                hiddenTestCases: cleanHidden,
+                startCode: cleanStartCode,
+                referenceSolution: cleanReference,
+                problemCreator
+            },
+            { new: true, runValidators: true }
+        );
+
+        return res.status(200).json(updatedProblem);
+
+    } catch (err) {
+
+        console.error(err);
+        return res.status(500).send("Internal Server Error: " + err.message);
 
     }
-    catch (err) {
-        return res.status(500).send("Error " + err);
-    }
-
-}
-
+};
 const deleteProblem = async (req, res) => {
     const { id } = req.params;
     try {

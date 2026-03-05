@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import axiosInstance from '../../api/axiosInstance';
+import axiosInstance from "../../api/axiosInstance";
 
 const AdminUpdate = () => {
+
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,10 +12,11 @@ const AdminUpdate = () => {
     fetchProblems();
   }, []);
 
+  // Fetch problems
   const fetchProblems = async () => {
     try {
       setLoading(true);
-      const { data } = await axiosInstance.get("/problem/allProblem");
+      const { data } = await axiosInstance.get("/problem/getAllProblem");
       setProblems(data);
     } catch (err) {
       setError("Failed to fetch problems");
@@ -24,326 +26,417 @@ const AdminUpdate = () => {
     }
   };
 
-  const handleSelect = async (id) => {
-    try {
-      const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
-      setSelectedProblem(data);
-    } catch (err) {
-      setError("Failed to fetch problem details");
-      console.error(err);
-    }
-  };
+  // Select problem
+const handleSelect = async (id) => {
+  try {
+    const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
 
+    const fixedVisible = (data.visibleTestCases || []).map((t) => ({
+      ...t,
+      explanation: t.explanation || t.explationation || ""
+    }));
+
+    setSelectedProblem({
+      ...data,
+      visibleTestCases: fixedVisible,
+      hiddenTestCases: data.hiddenTestCases || [],
+      startCode: data.startCode || [],
+      referenceSolution: data.referenceSolution || []
+    });
+
+  } catch (err) {
+    setError("Failed to fetch problem details");
+    console.error(err);
+  }
+};
+
+  // Handle simple fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSelectedProblem((prev) => ({ ...prev, [name]: value }));
+
+    setSelectedProblem((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleArrayChange = (field, index, value) => {
+  // Update nested array fields
+  const handleArrayChange = (field, index, key, value) => {
+
     setSelectedProblem((prev) => {
-      const updatedArray = [...prev[field]];
-      updatedArray[index] = value;
-      return { ...prev, [field]: updatedArray };
+
+      const updatedArray = [...(prev[field] || [])];
+
+      updatedArray[index] = {
+        ...updatedArray[index],
+        [key]: value
+      };
+
+      return {
+        ...prev,
+        [field]: updatedArray
+      };
+
     });
   };
 
+  // Add new item
   const handleAddArrayItem = (field, defaultValue) => {
+
     setSelectedProblem((prev) => ({
       ...prev,
-      [field]: [...prev[field], defaultValue],
+      [field]: [...(prev[field] || []), defaultValue]
     }));
+
   };
 
+  // Remove item
   const handleRemoveArrayItem = (field, index) => {
+
     setSelectedProblem((prev) => ({
       ...prev,
-      [field]: prev[field].filter((_, i) => i !== index),
+      [field]: (prev[field] || []).filter((_, i) => i !== index)
     }));
+
   };
 
+  // Update problem
   const handleUpdate = async () => {
+
     try {
+
       const updatedProblem = {
         ...selectedProblem,
         tags:
           typeof selectedProblem.tags === "string"
             ? selectedProblem.tags.split(",").map((t) => t.trim())
-            : selectedProblem.tags,
+            : selectedProblem.tags
       };
 
-      await axiosInstance.put(`/problem/update/${selectedProblem._id}`, updatedProblem);
+      await axiosInstance.put(
+        `/problem/update/${selectedProblem._id}`,
+        updatedProblem
+      );
+
       alert("Problem updated successfully!");
+
       setSelectedProblem(null);
       fetchProblems();
+
     } catch (err) {
-      setError("Failed to update problem");
+
       console.error(err);
+      setError("Failed to update problem");
+
     }
+
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="flex justify-center items-center h-screen bg-gray-900">
+        <span className="loading loading-spinner loading-lg text-white"></span>
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="alert alert-error shadow-lg my-4">
-        <div>
-          <span>{error}</span>
-        </div>
-      </div>
-    );
+    return <div className="text-red-400 p-6">{error}</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {!selectedProblem ? (
-        <>
-          <h1 className="text-3xl font-bold mb-6">Update Problems</h1>
-          <div className="overflow-x-auto">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Title</th>
-                  <th>Difficulty</th>
-                  <th>Tags</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {problems.map((problem, index) => (
-                  <tr key={problem._id}>
-                    <th>{index + 1}</th>
-                    <td>{problem.title}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          problem.difficulty === "Easy"
-                            ? "badge-success"
-                            : problem.difficulty === "Medium"
-                            ? "badge-warning"
-                            : "badge-error"
-                        }`}
-                      >
-                        {problem.difficulty}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="badge badge-outline">
-                        {Array.isArray(problem.tags) ? problem.tags.join(", ") : problem.tags}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleSelect(problem._id)}
-                        className="btn btn-sm btn-info"
-                      >
-                        Update
-                      </button>
-                    </td>
+
+    <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-6">
+
+      <div className="max-w-6xl mx-auto">
+
+        {!selectedProblem ? (
+
+          <>
+            <h1 className="text-3xl font-bold mb-8">
+              Admin Problem Manager
+            </h1>
+
+            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+
+              <table className="w-full">
+
+                <thead className="bg-gray-700 text-gray-200">
+                  <tr>
+                    <th className="p-4 text-left">#</th>
+                    <th className="p-4 text-left">Title</th>
+                    <th className="p-4 text-left">Difficulty</th>
+                    <th className="p-4 text-left">Tags</th>
+                    <th className="p-4 text-left">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : (
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold mb-4">Update Problem</h2>
-          <div className="space-y-4">
+                </thead>
+
+                <tbody>
+                  {problems.map((problem, index) => (
+
+                    <tr
+                      key={problem._id}
+                      className="border-b border-gray-700 hover:bg-gray-700"
+                    >
+
+                      <td className="p-4">{index + 1}</td>
+
+                      <td className="p-4 font-semibold">
+                        {problem.title}
+                      </td>
+
+                      <td className="p-4">
+
+                        <span
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${
+                            problem.difficulty === "easy"
+                              ? "bg-green-600"
+                              : problem.difficulty === "medium"
+                              ? "bg-yellow-600"
+                              : "bg-red-600"
+                          }`}
+                        >
+                          {problem.difficulty}
+                        </span>
+
+                      </td>
+
+                      <td className="p-4 text-gray-300">
+                        {Array.isArray(problem.tags)
+                          ? problem.tags.join(", ")
+                          : problem.tags}
+                      </td>
+
+                      <td className="p-4">
+
+                        <button
+                          onClick={() => handleSelect(problem._id)}
+                          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md"
+                        >
+                          Update
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+          </>
+
+        ) : (
+
+          <div className="bg-gray-800 rounded-xl shadow-xl p-8 space-y-6">
+
+            <h2 className="text-2xl font-bold">
+              Update Problem
+            </h2>
+
             {/* Title */}
             <div>
-              <label className="label">Title</label>
+              <label className="block mb-2 font-semibold">
+                Title
+              </label>
+
               <input
-                type="text"
                 name="title"
-                value={selectedProblem.title}
+                value={selectedProblem.title || ""}
                 onChange={handleChange}
-                className="input input-bordered w-full"
+                className="w-full bg-gray-900 border border-gray-700 rounded-md p-3"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="label">Description</label>
+              <label className="block mb-2 font-semibold">
+                Description
+              </label>
+
               <textarea
                 name="description"
-                value={selectedProblem.description}
+                value={selectedProblem.description || ""}
                 onChange={handleChange}
-                className="textarea textarea-bordered w-full"
                 rows={4}
+                className="w-full bg-gray-900 border border-gray-700 rounded-md p-3"
               />
             </div>
 
             {/* Difficulty */}
             <div>
-              <label className="label">Difficulty</label>
+              <label className="block mb-2 font-semibold">
+                Difficulty
+              </label>
+
               <select
                 name="difficulty"
-                value={selectedProblem.difficulty}
+                value={selectedProblem.difficulty || "easy"}
                 onChange={handleChange}
-                className="select select-bordered w-full"
+                className="w-full bg-gray-900 border border-gray-700 rounded-md p-3"
               >
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
 
-            {/* Tags */}
-            <div>
-              <label className="label">Tags (comma separated)</label>
-              <input
-                type="text"
-                name="tags"
-                value={
-                  Array.isArray(selectedProblem.tags)
-                    ? selectedProblem.tags.join(", ")
-                    : selectedProblem.tags || ""
-                }
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
+                <option value="easy">easy</option>
+                <option value="medium">medium</option>
+                <option value="hard">hard</option>
+
+              </select>
             </div>
 
             {/* Visible Test Cases */}
             <div>
-              <label className="label">Visible Test Cases</label>
+
+              <h3 className="text-lg font-semibold mb-3">
+                Visible Test Cases
+              </h3>
+
               {selectedProblem.visibleTestCases.map((test, i) => (
-                <div key={i} className="flex space-x-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Input"
-                    value={test.input || ""}
+
+                <div key={i} className="bg-gray-900 p-4 rounded mb-4 space-y-2">
+
+                  <div className="flex gap-3">
+
+                    <input
+                      value={test.input || ""}
+                      placeholder="Input"
+                      onChange={(e) =>
+                        handleArrayChange("visibleTestCases", i, "input", e.target.value)
+                      }
+                      className="flex-1 bg-gray-800 border border-gray-700 p-2 rounded"
+                    />
+
+                    <input
+                      value={test.output || ""}
+                      placeholder="Output"
+                      onChange={(e) =>
+                        handleArrayChange("visibleTestCases", i, "output", e.target.value)
+                      }
+                      className="flex-1 bg-gray-800 border border-gray-700 p-2 rounded"
+                    />
+
+                    <button
+                      onClick={() => handleRemoveArrayItem("visibleTestCases", i)}
+                      className="bg-red-600 px-3 rounded"
+                    >
+                      ✕
+                    </button>
+
+                  </div>
+
+                  <textarea
+                    value={test.explanation || ""}
+                    placeholder="Explanation"
                     onChange={(e) =>
-                      handleArrayChange("visibleTestCases", i, { ...test, input: e.target.value })
+                      handleArrayChange("visibleTestCases", i, "explanation", e.target.value)
                     }
-                    className="input input-bordered w-1/2"
+                    rows={2}
+                    className="w-full bg-gray-800 border border-gray-700 p-2 rounded"
                   />
-                  <input
-                    type="text"
-                    placeholder="Output"
-                    value={test.output || ""}
-                    onChange={(e) =>
-                      handleArrayChange("visibleTestCases", i, { ...test, output: e.target.value })
-                    }
-                    className="input input-bordered w-1/2"
-                  />
-                  <button
-                    onClick={() => handleRemoveArrayItem("visibleTestCases", i)}
-                    className="btn btn-sm btn-error"
-                  >
-                    Remove
-                  </button>
+
                 </div>
+
               ))}
+
               <button
-                onClick={() => handleAddArrayItem("visibleTestCases", { input: "", output: "" })}
-                className="btn btn-sm btn-outline"
+                onClick={() =>
+                  handleAddArrayItem("visibleTestCases", {
+                    input: "",
+                    output: "",
+                    explanation: ""
+                  })
+                }
+                className="bg-blue-600 px-4 py-1 rounded"
               >
-                Add Test Case
+                + Add Test Case
               </button>
+
             </div>
 
             {/* Hidden Test Cases */}
             <div>
-              <label className="label">Hidden Test Cases</label>
+
+              <h3 className="text-lg font-semibold mb-2">
+                Hidden Test Cases
+              </h3>
+
               {selectedProblem.hiddenTestCases.map((test, i) => (
-                <div key={i} className="flex space-x-2 mb-2">
+
+                <div key={i} className="flex gap-3 mb-2">
+
                   <input
-                    type="text"
-                    placeholder="Input"
                     value={test.input || ""}
+                    placeholder="Input"
                     onChange={(e) =>
-                      handleArrayChange("hiddenTestCases", i, { ...test, input: e.target.value })
+                      handleArrayChange("hiddenTestCases", i, "input", e.target.value)
                     }
-                    className="input input-bordered w-1/2"
+                    className="flex-1 bg-gray-900 border border-gray-700 p-2 rounded"
                   />
+
                   <input
-                    type="text"
-                    placeholder="Output"
                     value={test.output || ""}
+                    placeholder="Output"
                     onChange={(e) =>
-                      handleArrayChange("hiddenTestCases", i, { ...test, output: e.target.value })
+                      handleArrayChange("hiddenTestCases", i, "output", e.target.value)
                     }
-                    className="input input-bordered w-1/2"
+                    className="flex-1 bg-gray-900 border border-gray-700 p-2 rounded"
                   />
+
                   <button
                     onClick={() => handleRemoveArrayItem("hiddenTestCases", i)}
-                    className="btn btn-sm btn-error"
+                    className="bg-red-600 px-3 rounded"
                   >
-                    Remove
+                    ✕
                   </button>
+
                 </div>
+
               ))}
+
               <button
-                onClick={() => handleAddArrayItem("hiddenTestCases", { input: "", output: "" })}
-                className="btn btn-sm btn-outline"
+                onClick={() =>
+                  handleAddArrayItem("hiddenTestCases", {
+                    input: "",
+                    output: ""
+                  })
+                }
+                className="bg-blue-600 px-4 py-1 rounded"
               >
-                Add Test Case
+                + Add Hidden Case
               </button>
+
             </div>
 
-            {/* Start Code */}
-            <div>
-              <label className="label">Start Code</label>
-              {selectedProblem.startCode.map((codeObj, i) => (
-                <div key={i} className="flex space-x-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Language"
-                    value={codeObj.language || ""}
-                    onChange={(e) =>
-                      handleArrayChange("startCode", i, { ...codeObj, language: e.target.value })
-                    }
-                    className="input input-bordered w-1/4"
-                  />
-                  <textarea
-                    placeholder="Code"
-                    value={codeObj.code || ""}
-                    onChange={(e) =>
-                      handleArrayChange("startCode", i, { ...codeObj, code: e.target.value })
-                    }
-                    className="textarea textarea-bordered w-3/4"
-                    rows={3}
-                  />
-                  <button
-                    onClick={() => handleRemoveArrayItem("startCode", i)}
-                    className="btn btn-sm btn-error"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => handleAddArrayItem("startCode", { language: "", code: "" })}
-                className="btn btn-sm btn-outline"
-              >
-                Add Code
-              </button>
-            </div>
+            {/* Buttons */}
+            <div className="flex gap-4 pt-4">
 
-            <div className="flex space-x-2">
-              <button onClick={handleUpdate} className="btn btn-success">
+              <button
+                onClick={handleUpdate}
+                className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-md"
+              >
                 Save Update
               </button>
+
               <button
                 onClick={() => setSelectedProblem(null)}
-                className="btn btn-ghost"
+                className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-md"
               >
                 Cancel
               </button>
+
             </div>
+
           </div>
-        </div>
-      )}
+
+        )}
+
+      </div>
+
     </div>
+
   );
+
 };
 
 export default AdminUpdate;
