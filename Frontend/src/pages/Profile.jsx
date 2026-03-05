@@ -6,10 +6,12 @@ import ProfileHeader from "../pages/profileComponent/ProfileHeader";
 import ProfileStats from "../pages/profileComponent/ProfileStats";
 import ProfileAbout from "../pages/profileComponent/ProfileAbout";
 import RecentActivity from "../pages/profileComponent/RecentActivity";
+import EditProfile from "./profileComponent/EditProfile";
 
 const Profile = () => {
 
-    const { user, loading } = useAuth();
+    const { user, loading, loadUser } = useAuth();
+    // const { user, setUser } = useAuth();
 
     if (loading) return <div>Loading...</div>;
 
@@ -21,7 +23,7 @@ const Profile = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 py-10">
 
-            <ProfileHeader user={user} />
+            <ProfileHeader user={user} loadUser={loadUser} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 

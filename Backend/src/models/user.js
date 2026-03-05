@@ -43,6 +43,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
         // select: false
+    },
+    profileImage: {
+        type: String,
+        default: "https://res.cloudinary.com/diq2vbfgs/image/upload/v1772708785/defaultProfile_eo9p4m.png"
+    },
+    coverImage: {
+        type: String,
+        default: "https://res.cloudinary.com/diq2vbfgs/image/upload/v1772708785/defaultCover_dpdodu.png"
     }
 }, {
     timestamps: true,
