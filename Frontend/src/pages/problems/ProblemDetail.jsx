@@ -14,6 +14,7 @@ import Toolbar from './components/Toolbar';
 import ProblemDescription from './components/ProblemDescription';
 import SubmissionsTab from './components/SubmissionsTab';
 import CodeEditorSection from './components/CodeEditorSection';
+import ChatAi from './components/ChatAi';
 
 
 
@@ -172,7 +173,8 @@ const ProblemDetail = () => {
                             <Tabs
                                 tabs={[
                                     { id: 'description', label: 'Description' },
-                                    { id: 'submissions', label: 'Submissions' }
+                                    { id: 'submissions', label: 'Submissions' },
+                                    { id: 'ChatAi', label: 'ChatAi'}
                                 ]}
                                 activeTab={activeLeftTab}
                                 onTabChange={setActiveLeftTab}
@@ -180,9 +182,9 @@ const ProblemDetail = () => {
                             <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                                 {activeLeftTab === 'description' ? (
                                     <ProblemDescription problem={problem} />
-                                ) : (
+                                ) : activeLeftTab==='submissions'?(
                                     <SubmissionsTab problemId={id} />
-                                )}
+                                ): <ChatAi problem = {problem}></ChatAi>}
                             </div>
                         </div>
                     </Panel>

@@ -9,6 +9,7 @@ const redisClient = require('./config/redis')
 const problemRouter = require('./routes/problemCreator')
 const submitRouter = require('./routes/submit')
 const rankRoute = require("./routes/rankRoute");
+const aiRouter = require("./routes/aiChatting");
 
 
 
@@ -34,6 +35,7 @@ app.use('/user', userAuth);
 app.use('/problem', problemRouter);
 app.use('/submission', submitRouter);
 app.use("/api", rankRoute);
+app.use('/ai',aiRouter);
 
 const InitalizeConnection = async () => {
   try {
