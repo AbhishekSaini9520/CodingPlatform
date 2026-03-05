@@ -102,7 +102,10 @@ export const getSubmissions = async (problemId) => {
             throw errorData || "Failed to fetch submissions";
         }
 
+        // console.log("response ", response.body);
+
         const data = await response.json();
+        // console.log("data ", data);
         return data;
     } catch (error) {
         console.error("GET SUBMISSIONS ERROR:", error);

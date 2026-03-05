@@ -12,6 +12,7 @@ const SubmissionsTab = ({ problemId }) => {
             try {
                 setLoading(true);
                 const data = await getSubmissions(problemId);
+                // console.log(data);
                 // The backend returns "No Submission is persent" if empty, handle that
                 if (typeof data === 'string') {
                     setSubmissions([]);

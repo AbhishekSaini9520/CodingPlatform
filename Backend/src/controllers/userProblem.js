@@ -260,7 +260,7 @@ const updateProblem = async (req, res) => {
         }));
 
         // console.log(submissions);
-        if(submissions.length!==0){
+        if (submissions.length !== 0) {
             const submitResult = await submitBatch(submissions);
             // console.log("after judge0");
             if (!submitResult || !Array.isArray(submitResult)) {
@@ -282,7 +282,7 @@ const updateProblem = async (req, res) => {
 
             }
         }
-        
+
 
         // Remove Mongo _id fields
         const cleanVisible = (visibleTestCases || []).map(({ _id, ...rest }) => rest);
@@ -455,10 +455,13 @@ const submittedProblem = async (req, res) => {
 
         const ans = await Submission.find({ userId, problemId });
 
-        if (ans.length == 0)
-            res.status(200).send("No Submission is persent");
+        return res.status(200).json(ans);
+        // console.log(ans);
 
-        res.status(200).send(ans);
+        // if (ans.length == 0)
+        //     res.status(200).send("No Submission is persent");
+
+        // res.status(200).send(ans);
 
     }
     catch (err) {
