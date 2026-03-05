@@ -25,7 +25,7 @@ const Navbar = () => {
         {/* Links */}
         <div className="hidden md:flex gap-6 text-lg font-medium">
           <Link to="/problems" className="hover:text-white cursor-pointer transition-colors">Problems</Link>
-          <Link to="/contests" className="hover:text-white cursor-pointer transition-colors">Contests</Link>
+          {/* <Link to="/contests" className="hover:text-white cursor-pointer transition-colors">Contests</Link> */}
           <Link to="/leaderboard" className="hover:text-white cursor-pointer transition-colors">Leaderboard</Link>
           <Link to="/discuss" className="hover:text-white cursor-pointer transition-colors">Discuss</Link>
         </div>
