@@ -204,6 +204,31 @@ const createProblem = async (req, res) => {
 //     }
 
 // }
+const upload = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { ytlink } = req.body;
+
+        const updatedProblem = await Problem.findByIdAndUpdate(
+            id,
+            { ytlink: ytlink },
+            { new: true }   // updated document return karega
+        );
+
+        if (!updatedProblem) {
+            return res.status(404).send("Problem not found");
+        }
+
+        return res.send("Ytlink Updated");
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send("Internal Server Error: " + err.message);
+    }
+};
+
+
 const updateProblem = async (req, res) => {
 
     const { id } = req.params;
@@ -515,7 +540,7 @@ const submittedProblem = async (req, res) => {
     }
 }
 
-module.exports = { createProblem, updateProblem, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem };
+module.exports = { createProblem, updateProblem, upload, deleteProblem, getProblemById, getAllProblem, solvedAllProblemByUser, submittedProblem };
 
 // const submissions = [
 //     {

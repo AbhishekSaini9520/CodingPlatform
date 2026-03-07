@@ -1,219 +1,235 @@
-import { useParams } from 'react-router';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import axiosInstance from '../../api/axiosInstance';
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
 
-function AdminUpload(){
-    
-    const {problemId}  = useParams();
-    // formdata ki madat se hum video ko upload karange.
-    const [uploading, setUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const [uploadedVideo, setUploadedVideo] = useState(null);
-    const [wasReplaced, setWasReplaced] = useState(false);
-      const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-        reset,
-        setError,
-        clearErrors
-      } = useForm();
-    
-      const selectedFile = watch('videoFile')?.[0];
-    
-      // Upload video to Cloudinary
-      const onSubmit = async (data) => {
-        const file = data.videoFile[0];
-        
-        setUploading(true);
-        setUploadProgress(0);
-        setWasReplaced(false);
-        clearErrors();
-    
-        try {
-          // Step 1: Get upload signature from backend
-          const signatureResponse = await axiosInstance.get(`/video/create/${problemId}`);
-          const { signature, timestamp, public_id, api_key, cloud_name, upload_url } = signatureResponse.data;
-    
-          // Step 2: Create FormData for Cloudinary upload
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('signature', signature);
-          formData.append('timestamp', timestamp);
-          formData.append('public_id', public_id);
-          formData.append('api_key', api_key);
-    
-          // Step 3: Upload directly to Cloudinary
-          const uploadResponse = await axios.post(upload_url, formData, {// yaha pr axiosInstance nhi aayga kyuki wo isko localhost:5000 pr bhej dega lekin hme isko 5000 pr na bhej kr cloudinary pr bhejna hai.
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            onUploadProgress: (progressEvent) => {
-              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              setUploadProgress(progress);
-            },
-          });
-    
-          const cloudinaryResult = uploadResponse.data;
-    
-          // Step 4: Save video metadata to backend
-          const metadataResponse = await axiosInstance.post('/video/save', {
-            problemId:problemId,
-            cloudinaryPublicId: cloudinaryResult.public_id,
-            secureUrl: cloudinaryResult.secure_url,
-            duration: cloudinaryResult.duration,
-          });
-    
-          setUploadedVideo(metadataResponse.data.videoSolution);
-          setWasReplaced(metadataResponse.data.replaced);
-          reset(); // Reset form after successful upload
-          
-        } catch (err) {
-          console.error('Upload error:', err);
-          setError('root', {
-            type: 'manual',
-            message: err.response?.data?.message || 'Upload failed. Please try again.'
-          });
-        } finally {
-          setUploading(false);
-          setUploadProgress(0);
+const AdminUpload = () => {
+
+  const [problems, setProblems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedProblem, setSelectedProblem] = useState(null);
+
+  useEffect(() => {
+    fetchProblems();
+  }, []);
+
+  // Fetch problems
+  const fetchProblems = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.get("/problem/getAllProblem");
+      setProblems(data);
+    } catch (err) {
+      setError("Failed to fetch problems");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Select problem
+const handleSelect = async (id) => {
+  try {
+    const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
+
+    const fixedVisible = (data.visibleTestCases || []).map((t) => ({
+      ...t,
+      explanation: t.explanation || t.explationation || ""
+    }));
+
+    setSelectedProblem({
+      ...data,
+      visibleTestCases: fixedVisible,
+      hiddenTestCases: data.hiddenTestCases || [],
+      startCode: data.startCode || [],
+      referenceSolution: data.referenceSolution || []
+    });
+
+  } catch (err) {
+    setError("Failed to fetch problem details");
+    console.error(err);
+  }
+};
+
+  // Handle simple fields
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setSelectedProblem((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+
+   const handleUpdate = async () => {
+
+    try {
+
+      await axiosInstance.put(
+        `/problem/upload/${selectedProblem._id}`,
+        {
+          ytlink: selectedProblem.ytlink
         }
-      };
-    
-      // Format file size
-      const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      };
-    
-      // Format duration
-      const formatDuration = (seconds) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-      };
-    
-      return (
-        <div className="max-w-md mx-auto p-6">
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title">Upload Video</h2>
-              <div className="alert alert-info">
-                <div>
-                  <h4 className="font-bold">📝 Note:</h4>
-                  <p className="text-sm">If you upload a new video for this problem, it will replace your existing video automatically.</p>
-                </div>
-              </div>
-              
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* File Input */}
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">Choose video file</span>
-                  </label>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    {...register('videoFile', {
-                      required: 'Please select a video file',
-                      validate: {
-                        isVideo: (files) => {
-                          if (!files || !files[0]) return 'Please select a video file';
-                          const file = files[0];
-                          return file.type.startsWith('video/') || 'Please select a valid video file';
-                        },
-                        fileSize: (files) => {
-                          if (!files || !files[0]) return true;
-                          const file = files[0];
-                          const maxSize = 100 * 1024 * 1024; // 100MB
-                          return file.size <= maxSize || 'File size must be less than 100MB';
-                        }
-                      }
-                    })}
-                    className={`file-input file-input-bordered w-full ${errors.videoFile ? 'file-input-error' : ''}`}
-                    disabled={uploading}
-                  />
-                  {errors.videoFile && (
-                    <label className="label">
-                      <span className="label-text-alt text-error">{errors.videoFile.message}</span>
-                    </label>
-                  )}
-                </div>
-    
-                {/* Selected File Info */}
-                {selectedFile && (
-                  <div className="alert alert-info">
-                    <div>
-                      <h3 className="font-bold">Selected File:</h3>
-                      <p className="text-sm">{selectedFile.name}</p>
-                      <p className="text-sm">Size: {formatFileSize(selectedFile.size)}</p>
-                    </div>
-                  </div>
-                )}
-    
-                {/* Upload Progress */}
-                {uploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Uploading...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <progress 
-                      className="progress progress-primary w-full" 
-                      value={uploadProgress} 
-                      max="100"
-                    ></progress>
-                  </div>
-                )}
-    
-                {/* Error Message */}
-                {errors.root && (
-                  <div className="alert alert-error">
-                    <span>{errors.root.message}</span>
-                  </div>
-                )}
-    
-                {/* Success Message */}
-                {uploadedVideo && (
-                  <div className={`alert ${wasReplaced ? 'alert-warning' : 'alert-success'}`}>
-                    <div>
-                      <h3 className="font-bold">
-                        {wasReplaced ? 'Video Updated Successfully!' : 'Upload Successful!'}
-                      </h3>
-                      <p className="text-sm">Duration: {formatDuration(uploadedVideo.duration)}</p>
-                      <p className="text-sm">Uploaded: {new Date(uploadedVideo.uploadedAt).toLocaleString()}</p>
-                      {wasReplaced && (
-                        <p className="text-sm text-warning-content">
-                          ⚠️ Your previous video for this problem has been replaced.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-    
-                {/* Upload Button */}
-                <div className="card-actions justify-end">
-                  <button
-                    type="submit"
-                    disabled={uploading}
-                    className={`btn btn-primary ${uploading ? 'loading' : ''}`}
-                  >
-                    {uploading ? 'Uploading...' : 'Upload Video'}
-                  </button>
-                </div>
-              </form>
-            
-            </div>
-          </div>
-        </div>
-    );
-}
+      );
 
+      alert("Ytlink updated successfully!");
+
+      setSelectedProblem(null);
+      fetchProblems();
+
+    } catch (err) {
+      console.error(err.message);
+      setError("Failed to update problem");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-900">
+        <span className="loading loading-spinner loading-lg text-white"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-400 p-6">{error}</div>;
+  }
+
+  return (
+
+    <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-6">
+
+      <div className="max-w-6xl mx-auto">
+
+        {!selectedProblem ? (
+
+          <>
+            <h1 className="text-3xl font-bold mb-8">
+              Admin Problem Manager
+            </h1>
+
+            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+
+              <table className="w-full">
+
+                <thead className="bg-gray-700 text-gray-200">
+                  <tr>
+                    <th className="p-4 text-left">#</th>
+                    <th className="p-4 text-left">Title</th>
+                    <th className="p-4 text-left">Difficulty</th>
+                    <th className="p-4 text-left">Tags</th>
+                    <th className="p-4 text-left">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {problems.map((problem, index) => (
+
+                    <tr
+                      key={problem._id}
+                      className="border-b border-gray-700 hover:bg-gray-700"
+                    >
+
+                      <td className="p-4">{index + 1}</td>
+
+                      <td className="p-4 font-semibold">
+                        {problem.title}
+                      </td>
+
+                      <td className="p-4">
+
+                        <span
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${
+                            problem.difficulty === "easy"
+                              ? "bg-green-600"
+                              : problem.difficulty === "medium"
+                              ? "bg-yellow-600"
+                              : "bg-red-600"
+                          }`}
+                        >
+                          {problem.difficulty}
+                        </span>
+
+                      </td>
+
+                      <td className="p-4 text-gray-300">
+                        {Array.isArray(problem.tags)
+                          ? problem.tags.join(", ")
+                          : problem.tags}
+                      </td>
+
+                      <td className="p-4">
+
+                        <button
+                          onClick={() => handleSelect(problem._id)}
+                          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md"
+                        >
+                          Update
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+          </>
+
+        ) : (
+
+          <div className="bg-gray-800 rounded-xl shadow-xl p-8 space-y-6">
+
+            <h2 className="text-2xl font-bold">
+              Update Problem
+            </h2>
+
+            {/* Title */}
+            <div>
+              <label className="block mb-2 font-semibold">
+                Link: 
+              </label>
+
+              <input
+                name="ytlink"
+                value={selectedProblem.ytlink}
+                onChange={handleChange}
+                className="w-full bg-gray-900 border border-gray-700 rounded-md p-3"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-4 pt-4">
+
+              <button
+                onClick={handleUpdate}
+                className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-md"
+              >
+                Save Update
+              </button>
+
+              <button
+                onClick={() => setSelectedProblem(null)}
+                className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+
+            </div>
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+
+  );
+
+};
 
 export default AdminUpload;
