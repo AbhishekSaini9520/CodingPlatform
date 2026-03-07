@@ -317,26 +317,60 @@ const updateProblem = async (req, res) => {
 
     }
 };
+
 const deleteProblem = async (req, res) => {
     const { id } = req.params;
+
     try {
 
         if (!id)
-            res.send("ID is Missing");
+            return res.status(400).send("ID is Missing");
 
         const deletedProblem = await Problem.findByIdAndDelete(id);
 
         if (!deletedProblem)
-            res.status(404).send("Problem is Missing");
+            return res.status(404).send("Problem Not Found");
 
-        // await Submission.findByIdAndDelete(id);
+        const submissions = await Submission.find({ problemId: id });
 
-        res.status(200).send("Problem Successfully Deleted")
+        const userIds = [...new Set(submissions.map(sub => sub.userId.toString()))];
+
+        await Submission.deleteMany({ problemId: id });
+
+        await User.updateMany(
+            { _id: { $in: userIds } },
+            {
+                $pull: { problemSolved: id },
+                $inc: { solvedCount: -1 }
+            }
+        );
+
+        res.status(200).send("Problem and related data deleted successfully");
+
+    } catch (error) {
+        res.status(500).send("Error: " + error.message);
     }
-    catch (error) {
-        res.status(404).send("Error " + error);
-    }
-}
+};
+// const deleteProblem = async (req, res) => {
+//     const { id } = req.params;
+//     try {
+
+//         if (!id)
+//             res.send("ID is Missing");
+
+//         const deletedProblem = await Problem.findByIdAndDelete(id);
+
+//         if (!deletedProblem)
+//             res.status(404).send("Problem is Missing");
+
+//         // await Submission.findByIdAndDelete(id);
+
+//         res.status(200).send("Problem Successfully Deleted")
+//     }
+//     catch (error) {
+//         res.status(404).send("Error " + error);
+//     }
+// }
 
 const getProblemById = async (req, res) => {
     const { id } = req.params;
