@@ -21,6 +21,23 @@ const problemSchema = new Schema({
         enum: ['Array', 'LinkList', 'Graph', 'DP', 'Math', 'math', 'array'],
         required: true
     },
+    explainTestCase: [{
+        input: {
+            type: String,
+            default: "",
+            required: true
+        },
+        output: {
+            type: String,
+            default: "",
+            required: true
+        },
+        explanation: {
+            type: String,
+            default: "",
+            required: true
+        }
+    }],
     visibleTestCases: [{
         input: {
             type: String,
@@ -70,7 +87,7 @@ const problemSchema = new Schema({
         ref: 'user',
         required: true
     },
-    ytlink:{
+    ytlink: {
         type: String,
         default: ""
     }

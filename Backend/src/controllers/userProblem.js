@@ -12,11 +12,14 @@ const createProblem = async (req, res) => {
             description,
             difficulty,
             tags,
+            explainTestCase,
             visibleTestCases,
             hiddenTestCases,
             startCode,
             referenceSolution
         } = req.body;
+
+        console.log(explainTestCase)
 
         // =========================
         // 1️⃣ Basic Validation
@@ -25,25 +28,29 @@ const createProblem = async (req, res) => {
         if (!title || !description || !difficulty || !tags) {
             return res.status(400).json({ message: "Missing required fields" });
         }
-        console.log("1");
+        // console.log("1");
         if (!Array.isArray(visibleTestCases) || visibleTestCases.length === 0) {
             return res.status(400).json({ message: "Visible test cases required" });
         }
-        console.log("2");
+        // console.log("2");
 
         if (!Array.isArray(hiddenTestCases) || hiddenTestCases.length === 0) {
             return res.status(400).json({ message: "Hidden test cases required" });
         }
-        console.log("3");
+        // console.log("3");
 
         if (!Array.isArray(referenceSolution) || referenceSolution.length === 0) {
             return res.status(400).json({ message: "Reference solution required" });
         }
 
+        if (!Array.isArray(explainTestCase) || explainTestCase.lenght === 0) {
+            return res.status(400).json({ message: "Explain Test Case Required" })
+        }
+
         // =========================
         // 2️⃣ Run Judge Validation
         // =========================
-        console.log("info come perfect");
+        // console.log("info come perfect");
         for (const solution of referenceSolution) {
             // console.log(solution);
             const { language, completeSolution } = solution;
@@ -109,6 +116,7 @@ const createProblem = async (req, res) => {
             description,
             difficulty,
             tags,
+            explainTestCase,
             visibleTestCases,
             hiddenTestCases,
             startCode,
@@ -381,7 +389,7 @@ const getProblemById = async (req, res) => {
 
         // console.log(id);
 
-        const getProblem = await Problem.findById(id).select('title description difficulty tags visibleTestCases startCode referenceSolution ytlink');
+        const getProblem = await Problem.findById(id).select('title description difficulty tags visibleTestCases startCode referenceSolution ytlink explainTestCase');
         // for not selection then do this .select('~hiddenTestCases');
         // console.log(getProblem)
 

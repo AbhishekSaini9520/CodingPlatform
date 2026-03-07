@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
+import { useAuth } from "../../context/AuthContext"
 
 const AdminDelete = () => {
 
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { loadUser } = useAuth();
 
   useEffect(() => {
     fetchProblems();
@@ -31,6 +33,7 @@ const AdminDelete = () => {
     try {
 
       await axiosInstance.delete(`/problem/delete/${id}`);
+      await loadUser();
 
       setProblems(problems.filter((problem) => problem._id !== id));
 
@@ -102,13 +105,12 @@ const AdminDelete = () => {
                   <td className="p-4">
 
                     <span
-                      className={`px-3 py-1 rounded-md text-sm font-medium ${
-                        problem.difficulty === "easy"
-                          ? "bg-green-600"
-                          : problem.difficulty === "medium"
+                      className={`px-3 py-1 rounded-md text-sm font-medium ${problem.difficulty === "easy"
+                        ? "bg-green-600"
+                        : problem.difficulty === "medium"
                           ? "bg-yellow-600"
                           : "bg-red-600"
-                      }`}
+                        }`}
                     >
                       {problem.difficulty}
                     </span>
