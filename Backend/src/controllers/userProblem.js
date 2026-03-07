@@ -236,9 +236,9 @@ const updateProblem = async (req, res) => {
         // console.log(allTestCases);
         // console.log("3");
         // Find C++ reference solution
-        
 
-        if(allTestCases.length!==0){
+
+        if (allTestCases.length !== 0) {
             const cppSolution = referenceSolution.find(
                 (sol) => sol.language === "C++"
             );
@@ -329,6 +329,8 @@ const deleteProblem = async (req, res) => {
         if (!deletedProblem)
             res.status(404).send("Problem is Missing");
 
+        // await Submission.findByIdAndDelete(id);
+
         res.status(200).send("Problem Successfully Deleted")
     }
     catch (error) {
@@ -345,7 +347,7 @@ const getProblemById = async (req, res) => {
 
         // console.log(id);
 
-        const getProblem = await Problem.findById(id).select('title description difficulty tags visibleTestCases startCode referenceSolution');
+        const getProblem = await Problem.findById(id).select('title description difficulty tags visibleTestCases startCode referenceSolution ytlink');
         // for not selection then do this .select('~hiddenTestCases');
         // console.log(getProblem)
 

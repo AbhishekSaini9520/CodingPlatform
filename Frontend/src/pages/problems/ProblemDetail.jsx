@@ -15,6 +15,7 @@ import ProblemDescription from './components/ProblemDescription';
 import SubmissionsTab from './components/SubmissionsTab';
 import CodeEditorSection from './components/CodeEditorSection';
 import ChatAi from './components/ChatAi';
+import Editorial from './components/Editorial';
 
 
 
@@ -38,6 +39,7 @@ const ProblemDetail = () => {
         const fetchProblem = async () => {
             try {
                 const data = await getProblemById(id);
+                console.log(data);
                 setProblem(data);
                 if (data.startCode && data.startCode.length > 0) {
                     const cppCode = data.startCode.find(c => c.language.toLowerCase() === 'c++');
@@ -167,14 +169,15 @@ const ProblemDetail = () => {
 
             <div className="flex-1 overflow-hidden">
                 <PanelGroup orientation="horizontal">
-                    {/* Left Side: Description and Submissions */}
+                    {/* Left Side: Description,Submissions, ChatAi, and Editorial */}
                     <Panel defaultSize={50} minSize={20}>
                         <div className="h-full flex flex-col border-r border-gray-700 bg-gray-900 overflow-hidden">
                             <Tabs
                                 tabs={[
                                     { id: 'description', label: 'Description' },
                                     { id: 'submissions', label: 'Submissions' },
-                                    { id: 'ChatAi', label: 'ChatAi'}
+                                    { id: 'ChatAi', label: 'ChatAi' },
+                                    { id: 'Editorial', label: 'Editorial' }
                                 ]}
                                 activeTab={activeLeftTab}
                                 onTabChange={setActiveLeftTab}
@@ -182,9 +185,11 @@ const ProblemDetail = () => {
                             <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                                 {activeLeftTab === 'description' ? (
                                     <ProblemDescription problem={problem} />
-                                ) : activeLeftTab==='submissions'?(
+                                ) : activeLeftTab === 'submissions' ? (
                                     <SubmissionsTab problemId={id} />
-                                ): <ChatAi problem = {problem}></ChatAi>}
+                                ) : activeLeftTab === 'Editorial' ? (
+                                    <Editorial problem={problem}></Editorial>
+                                ) : <ChatAi problem={problem}></ChatAi>}
                             </div>
                         </div>
                     </Panel>
