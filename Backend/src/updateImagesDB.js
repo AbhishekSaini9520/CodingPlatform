@@ -4,58 +4,68 @@ require("dotenv").config();
 // Import Models
 const User = require("./models/user");
 const Submission = require("./models/submission");
+const Problem = require("./models/problem");
 
 // MongoDB connection
 mongoose.connect(process.env.DB_CONNECT_STRING)
     .then(() => {
         console.log("DB Connected");
-        updateSolveCounts();
+        // cleanUserSolvedProblems();
+        // cleanInvalidSubmissions();
+        // updateSolvedProblems();
+        // updateSolveCounts();
     })
     .catch(err => {
         console.error("DB Connection Error:", err);
     });
 
-async function updateSolveCounts() {
+const cleanUserSolvedProblems = async () => {
 
-    try {
+    const problems = await Problem.find({}, { _id: 1 });
+    const validProblemIds = problems.map(p => p._id.toString());
 
-        const result = await Submission.aggregate([
-            {
-                $match: { status: "Accepted" } // change if your schema uses status_id
-            },
-            {
-                $group: {
-                    _id: "$userId",
-                    solvedProblems: { $addToSet: "$problemId" }
-                }
-            },
-            {
-                $project: {
-                    solveCount: { $size: "$solvedProblems" }
-                }
-            }
-        ]);
+    const users = await User.find({});
 
-        for (const user of result) {
+    for (const user of users) {
+
+        const originalSolved = user.problemSolved.map(id => id.toString());
+
+        const filteredSolved = originalSolved.filter(id =>
+            validProblemIds.includes(id)
+        );
+
+        const deletedCount = originalSolved.length - filteredSolved.length;
+
+        if (deletedCount > 0) {
+
             await User.updateOne(
                 { _id: user._id },
-                { $set: { solveCount: user.solveCount } }
+                {
+                    problemSolved: filteredSolved,
+                    $inc: { solvedCount: -deletedCount }
+                }
             );
+
         }
-
-        console.log("Solve counts updated successfully");
-
-        process.exit();
-
-    } catch (error) {
-
-        console.error("Error updating solve counts:", error);
-        process.exit(1);
-
     }
 
-}
+    console.log("User solved problems cleaned");
+};
 
+const cleanInvalidSubmissions = async () => {
+
+    // get all problem ids
+    const problems = await Problem.find({}, { _id: 1 });
+    const problemIds = problems.map(p => p._id);
+
+    // delete invalid submissions
+    const result = await Submission.deleteMany({
+        problemId: { $nin: problemIds }
+    });
+
+    console.log("Deleted submissions:", result.deletedCount);
+};
+// updateSolvedProblems();
 
 // const mongoose = require("mongoose");
 // require("dotenv").config();
