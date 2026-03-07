@@ -167,7 +167,6 @@ const ProblemDetail = () => {
                                 {activeLeftTab === 'description' ? (
                                     <ProblemDescription problem={problem} />
                                 ) : activeLeftTab === 'submissions' ? (
-                                ) : activeLeftTab === 'submissions' ? (
                                     <SubmissionsTab problemId={id} />
                                 ) : activeLeftTab === 'Editorial' ? (
                                     <Editorial problem={problem}></Editorial>
