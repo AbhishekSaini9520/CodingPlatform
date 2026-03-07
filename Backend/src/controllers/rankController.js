@@ -16,7 +16,7 @@ const getUserRank = async (req, res) => {
                 }
             });
 
-        console.log(betterUsers);
+        // console.log(betterUsers);
 
         // const betterUsers = 5;
 
@@ -24,12 +24,12 @@ const getUserRank = async (req, res) => {
 
         const totalUsers = await User.countDocuments();
 
-        console.log(totalUsers)
+        // console.log(totalUsers)
         // const totalUsers = 10;
         const topPercent =
             ((rank / totalUsers) * 100).toFixed(2);
 
-
+        console.log(rank, topPercent, totalUsers);
         res.json({
             rank,
             topPercent,
