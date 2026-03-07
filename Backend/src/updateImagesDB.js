@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// Import User model
+// Import Models
 const User = require("./models/user");
+const Submission = require("./models/submission");
 const Problem = require("./models/problem");
 
 // MongoDB connection
 mongoose.connect(process.env.DB_CONNECT_STRING)
     .then(() => {
         console.log("DB Connected");
-        updateProblems();
-        // updateUsers();
         // cleanUserSolvedProblems();
         // cleanInvalidSubmissions();
         // updateSolvedProblems();
@@ -20,37 +19,69 @@ mongoose.connect(process.env.DB_CONNECT_STRING)
         console.error("DB Connection Error:", err);
     });
 
-async function updateProblems() {
-    try {
-        const result = await Problem.updateMany(
-            { ytlink: { $exists: false } },   // jisme ytlink nahi hai
-            { $set: { ytlink: "" } }          // field add karo
+const cleanUserSolvedProblems = async () => {
+
+    const problems = await Problem.find({}, { _id: 1 });
+    const validProblemIds = problems.map(p => p._id.toString());
+
+    const users = await User.find({});
+
+    for (const user of users) {
+
+        const originalSolved = user.problemSolved.map(id => id.toString());
+
+        const filteredSolved = originalSolved.filter(id =>
+            validProblemIds.includes(id)
         );
 
-        console.log("Problems updated:", result.modifiedCount);
+        const deletedCount = originalSolved.length - filteredSolved.length;
 
-        mongoose.connection.close();
-    } catch (error) {
-        console.error("Error:", error);
-        mongoose.connection.close();
+        if (deletedCount > 0) {
+
+            await User.updateOne(
+                { _id: user._id },
+                {
+                    problemSolved: filteredSolved,
+                    $inc: { solvedCount: -deletedCount }
+                }
+            );
+
+        }
     }
-}
 
-async function updateUsers() {
-    try {
-        const result = await Problem.updateMany(
-            { ytlink: { $exists: false } },  // only users without ytlink
-            { $set: { ytlink: "" } }         // add field with default value
-        );
+    console.log("User solved problems cleaned");
+};
 
-        console.log(`Problem updated: ${result.modifiedCount}`);
+const cleanInvalidSubmissions = async () => {
 
-        mongoose.connection.close();
-    } catch (error) {
-        console.error("Error updating users:", error);
-        mongoose.connection.close();
-    }
-}
+    // get all problem ids
+    const problems = await Problem.find({}, { _id: 1 });
+    const problemIds = problems.map(p => p._id);
+
+    // delete invalid submissions
+    const result = await Submission.deleteMany({
+        problemId: { $nin: problemIds }
+    });
+
+    console.log("Deleted submissions:", result.deletedCount);
+};
+// updateSolvedProblems();
+
+// const mongoose = require("mongoose");
+// require("dotenv").config();
+
+// // Import User model
+// const User = require("./models/user");
+
+// // MongoDB connection
+// mongoose.connect(process.env.DB_CONNECT_STRING)
+//     .then(() => {
+//         console.log("DB Connected");
+//         updateUsers();
+//     })
+//     .catch(err => {
+//         console.error("DB Connection Error:", err);
+//     });
 
 // async function updateUsers() {
 
@@ -93,3 +124,4 @@ async function updateUsers() {
 //     }
 
 // }
+

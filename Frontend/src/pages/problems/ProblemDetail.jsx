@@ -33,7 +33,7 @@ const ProblemDetail = () => {
     const [submitResult, setSubmitResult] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
-    const { user } = useAuth();
+    const { user, loadUser } = useAuth();
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -63,7 +63,7 @@ const ProblemDetail = () => {
 
     const handleRun = async () => {
         setRunLoading(true);
-        setRunResult(null);
+        // setRunResult(null);
         try {
             const result = await runCode(id, code, language);
             setRunResult(result);
@@ -74,27 +74,6 @@ const ProblemDetail = () => {
         }
     };
 
-    // const handleSubmit = async () => {
-    //     setSubmitLoading(true);
-    //     setRunResult(null);
-    //     try {
-    //         const user_id = id;
-    //         if (!user_id) {
-
-    //         }
-    //         const result = await submitCode(id, code, language);
-    //         setSubmitResult(result);
-    //         if (result.testResults) {
-    //             setRunResult(result.testResults);
-    //         }
-    //         alert(`Submission Status: ${result.status}`);
-    //     } catch (err) {
-    //         console.error(err);
-    //         alert("Submission Failed: " + (err.message || "Unknown Error"));
-    //     } finally {
-    //         setSubmitLoading(false);
-    //     }
-    // };
     const handleSubmit = async () => {
 
         // CHECK LOGIN FIRST
@@ -112,6 +91,8 @@ const ProblemDetail = () => {
             const result = await submitCode(id, code, language);
 
             setSubmitResult(result);
+            setActiveLeftTab('submissions');
+            await loadUser();
 
             if (result.testResults) {
                 setRunResult(result.testResults);
@@ -185,6 +166,7 @@ const ProblemDetail = () => {
                             <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                                 {activeLeftTab === 'description' ? (
                                     <ProblemDescription problem={problem} />
+                                ) : activeLeftTab === 'submissions' ? (
                                 ) : activeLeftTab === 'submissions' ? (
                                     <SubmissionsTab problemId={id} />
                                 ) : activeLeftTab === 'Editorial' ? (

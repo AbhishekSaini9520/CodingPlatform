@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 topPercent: rankData.topPercent,
             };
 
-            // console.log(updatedUser);
+            console.log("Updated User Data", updatedUser);
 
             setUser(updatedUser);
 
