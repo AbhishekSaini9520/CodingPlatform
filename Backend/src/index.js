@@ -10,7 +10,21 @@ const problemRouter = require('./routes/problemCreator')
 const submitRouter = require('./routes/submit')
 const rankRoute = require("./routes/rankRoute");
 const aiRouter = require("./routes/aiChatting");
+const discussionRoutes = require("./routes/discussionRoutes.js");
+const { Server } = require("socket.io");
+const { socketHandler } = require("./socket/socketHandler.js");
+const http = require("http");
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173", "https://coding-platform-eta-woad.vercel.app"],
+    credentials: true,
+    methods: ["GET", "POST"]
+  }
+});
+
+socketHandler(io);
 
 
 app.use(express.json());
@@ -35,7 +49,8 @@ app.use('/user', userAuth);
 app.use('/problem', problemRouter);
 app.use('/submission', submitRouter);
 app.use("/api", rankRoute);
-app.use('/ai',aiRouter);
+app.use('/ai', aiRouter);
+app.use('/discussion', discussionRoutes);
 
 const InitalizeConnection = async () => {
   try {
@@ -55,7 +70,7 @@ const InitalizeConnection = async () => {
     console.log("Redis Connection Failed (Ignoring): ", error.message);
   }
 
-  app.listen(process.env.PORT, () => {
+  server.listen(process.env.PORT, () => {
     console.log("Listening at the port number: " + process.env.PORT)
   })
 }

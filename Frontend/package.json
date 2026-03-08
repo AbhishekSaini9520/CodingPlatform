@@ -23,6 +23,7 @@
     "react-router-dom": "^7.13.1",
     "react-syntax-highlighter": "^16.1.1",
     "rehype-highlight": "^7.0.2",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.1.18",
     "zod": "^4.3.6"
   },
