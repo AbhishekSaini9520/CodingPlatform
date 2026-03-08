@@ -47,15 +47,15 @@ const AdminDelete = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <span className="loading loading-spinner loading-lg text-white"></span>
+      <div className="flex justify-center items-center h-screen bg-gray-50 dark:bg-gray-900">
+        <span className="loading loading-spinner loading-lg text-gray-900 dark:text-white"></span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 text-red-400 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-red-600 dark:text-red-400 flex items-center justify-center">
         {error}
       </div>
     );
@@ -63,7 +63,7 @@ const AdminDelete = () => {
 
   return (
 
-    <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-10 px-6">
 
       <div className="max-w-6xl mx-auto">
 
@@ -71,11 +71,11 @@ const AdminDelete = () => {
           Delete Problems
         </h1>
 
-        <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
           <table className="w-full">
 
-            <thead className="bg-gray-700 text-gray-200">
+            <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
               <tr>
                 <th className="p-4 text-left w-1/12">#</th>
                 <th className="p-4 text-left w-4/12">Title</th>
@@ -91,7 +91,7 @@ const AdminDelete = () => {
 
                 <tr
                   key={problem._id}
-                  className="border-b border-gray-700 hover:bg-gray-700 transition duration-200"
+                  className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200 text-gray-800 dark:text-gray-200"
                 >
 
                   <td className="p-4">
@@ -117,7 +117,7 @@ const AdminDelete = () => {
 
                   </td>
 
-                  <td className="p-4 text-gray-300">
+                  <td className="p-4 text-gray-600 dark:text-gray-300">
                     {Array.isArray(problem.tags)
                       ? problem.tags.join(", ")
                       : problem.tags}

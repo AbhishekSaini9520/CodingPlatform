@@ -154,7 +154,7 @@ const ProblemDetail = () => {
                 <PanelGroup orientation="horizontal">
                     {/* Left Side: Description,Submissions, ChatAi, and Editorial */}
                     <Panel defaultSize={50} minSize={20}>
-                        <div className="h-full flex flex-col border-r border-gray-700 bg-gray-900 overflow-hidden">
+                        <div className="h-full flex flex-col border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden">
                             <Tabs
                                 tabs={[
                                     { id: 'description', label: 'Description' },
@@ -177,8 +177,8 @@ const ProblemDetail = () => {
                         </div>
                     </Panel>
 
-                    <PanelResizeHandle className="w-1.5 bg-gray-900 border-x border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-col-resize">
-                        <div className="w-0.5 h-8 bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
+                    <PanelResizeHandle className="w-1.5 bg-gray-100 dark:bg-gray-900 border-x border-gray-300 dark:border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-col-resize">
+                        <div className="w-0.5 h-8 bg-gray-400 dark:bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
                     </PanelResizeHandle>
 
                     {/* Right Side: Code Editor and Test Results */}
@@ -192,12 +192,12 @@ const ProblemDetail = () => {
                                 />
                             </Panel>
 
-                            <PanelResizeHandle className="h-1.5 bg-gray-900 border-y border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-row-resize">
-                                <div className="w-8 h-0.5 bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
+                            <PanelResizeHandle className="h-1.5 bg-gray-100 dark:bg-gray-900 border-y border-gray-300 dark:border-gray-700 hover:bg-blue-500/20 transition-colors flex items-center justify-center group cursor-row-resize">
+                                <div className="w-8 h-0.5 bg-gray-400 dark:bg-gray-700 group-hover:bg-blue-500 rounded-full"></div>
                             </PanelResizeHandle>
 
                             <Panel defaultSize={30} minSize={10}>
-                                <div className="h-full bg-[#1e1e1e] overflow-hidden">
+                                <div className="h-full bg-white dark:bg-[#1e1e1e] border-y border-gray-300 dark:border-transparent overflow-hidden">
                                     <TestPanel
                                         problem={problem}
                                         runResult={runResult}

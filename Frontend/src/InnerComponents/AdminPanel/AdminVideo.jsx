@@ -27,28 +27,28 @@ const AdminUpload = () => {
   };
 
   // Select problem
-const handleSelect = async (id) => {
-  try {
-    const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
+  const handleSelect = async (id) => {
+    try {
+      const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
 
-    const fixedVisible = (data.visibleTestCases || []).map((t) => ({
-      ...t,
-      explanation: t.explanation || t.explationation || ""
-    }));
+      const fixedVisible = (data.visibleTestCases || []).map((t) => ({
+        ...t,
+        explanation: t.explanation || t.explationation || ""
+      }));
 
-    setSelectedProblem({
-      ...data,
-      visibleTestCases: fixedVisible,
-      hiddenTestCases: data.hiddenTestCases || [],
-      startCode: data.startCode || [],
-      referenceSolution: data.referenceSolution || []
-    });
+      setSelectedProblem({
+        ...data,
+        visibleTestCases: fixedVisible,
+        hiddenTestCases: data.hiddenTestCases || [],
+        startCode: data.startCode || [],
+        referenceSolution: data.referenceSolution || []
+      });
 
-  } catch (err) {
-    setError("Failed to fetch problem details");
-    console.error(err);
-  }
-};
+    } catch (err) {
+      setError("Failed to fetch problem details");
+      console.error(err);
+    }
+  };
 
   // Handle simple fields
   const handleChange = (e) => {
@@ -61,7 +61,7 @@ const handleSelect = async (id) => {
   };
 
 
-   const handleUpdate = async () => {
+  const handleUpdate = async () => {
 
     try {
 
@@ -85,8 +85,8 @@ const handleSelect = async (id) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <span className="loading loading-spinner loading-lg text-white"></span>
+      <div className="flex justify-center items-center h-screen bg-gray-50 dark:bg-gray-900">
+        <span className="loading loading-spinner loading-lg text-gray-900 dark:text-white"></span>
       </div>
     );
   }
@@ -97,7 +97,7 @@ const handleSelect = async (id) => {
 
   return (
 
-    <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-10 px-6">
 
       <div className="max-w-6xl mx-auto">
 
@@ -108,11 +108,11 @@ const handleSelect = async (id) => {
               Admin Problem Manager
             </h1>
 
-            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
               <table className="w-full">
 
-                <thead className="bg-gray-700 text-gray-200">
+                <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
                   <tr>
                     <th className="p-4 text-left">#</th>
                     <th className="p-4 text-left">Title</th>
@@ -127,7 +127,7 @@ const handleSelect = async (id) => {
 
                     <tr
                       key={problem._id}
-                      className="border-b border-gray-700 hover:bg-gray-700"
+                      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
                     >
 
                       <td className="p-4">{index + 1}</td>
@@ -139,20 +139,19 @@ const handleSelect = async (id) => {
                       <td className="p-4">
 
                         <span
-                          className={`px-3 py-1 rounded-md text-sm font-medium ${
-                            problem.difficulty === "easy"
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${problem.difficulty === "easy"
                               ? "bg-green-600"
                               : problem.difficulty === "medium"
-                              ? "bg-yellow-600"
-                              : "bg-red-600"
-                          }`}
+                                ? "bg-yellow-600"
+                                : "bg-red-600"
+                            }`}
                         >
                           {problem.difficulty}
                         </span>
 
                       </td>
 
-                      <td className="p-4 text-gray-300">
+                      <td className="p-4 text-gray-600 dark:text-gray-300">
                         {Array.isArray(problem.tags)
                           ? problem.tags.join(", ")
                           : problem.tags}
@@ -181,7 +180,7 @@ const handleSelect = async (id) => {
 
         ) : (
 
-          <div className="bg-gray-800 rounded-xl shadow-xl p-8 space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 space-y-6 border border-gray-200 dark:border-gray-700">
 
             <h2 className="text-2xl font-bold">
               Update Problem
@@ -190,14 +189,14 @@ const handleSelect = async (id) => {
             {/* Title */}
             <div>
               <label className="block mb-2 font-semibold">
-                Link: 
+                Link:
               </label>
 
               <input
                 name="ytlink"
                 value={selectedProblem.ytlink}
                 onChange={handleChange}
-                className="w-full bg-gray-900 border border-gray-700 rounded-md p-3"
+                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md p-3 text-gray-900 dark:text-gray-100"
               />
             </div>
 

@@ -3,11 +3,24 @@ import { Link } from "react-router-dom";
 import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ThemeSwitcher from "./ThemeSwitcher";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/themeContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const profileImage = user?.profileImage;
+
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    if (theme === "dark") {
+      setTheme("light");
+    } else {
+      setTheme("dark");
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -24,19 +37,19 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-[#24292f] text-gray-200 px-6 py-2 flex items-center justify-between">
+    <nav className="bg-white text-gray-900 dark:bg-[#24292f] dark:text-gray-200 px-6 py-2 flex items-center justify-between border-b border-gray-200 dark:border-none">
       {/* LEFT */}
       <div className="flex items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-white cursor-pointer hover:text-gray-300 transition-colors">
+        <Link to="/" className="text-2xl font-bold text-gray-900 dark:text-white cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           &lt;/&gt; CodeHub
         </Link>
         {/* Links */}
         <div className="hidden md:flex gap-6 text-lg font-medium">
-          <Link to="/problems" className="hover:text-white cursor-pointer transition-colors">Problems</Link>
+          <Link to="/problems" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors">Problems</Link>
           {/* <Link to="/contests" className="hover:text-white cursor-pointer transition-colors">Contests</Link> */}
-          <Link to="/leaderboard" className="hover:text-white cursor-pointer transition-colors">Leaderboard</Link>
-          <Link to="/discuss" className="hover:text-white cursor-pointer transition-colors">Discuss</Link>
+          <Link to="/leaderboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors">Leaderboard</Link>
+          <Link to="/discuss" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors">Discuss</Link>
         </div>
       </div>
 
@@ -55,65 +68,78 @@ const Navbar = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleSearch}
-          className="w-full bg-[#1f2428] border border-gray-600 rounded-md px-3 py-2 text-base focus:outline-none focus:border-blue-500 placeholder-gray-500 text-gray-200"
+          className="w-full bg-gray-100 dark:bg-[#1f2428] border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-base focus:outline-none focus:border-blue-500 placeholder-gray-500 text-gray-900 dark:text-gray-200"
         />
       </div>
 
+
       {/* RIGHT */}
       <div className="flex items-center gap-4">
+
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+        >
+          {theme === "dark" ? (
+            <Sun className="w-5 h-5 text-yellow-400" />
+          ) : (
+            <Moon className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+          )}
+        </button>
+
         {!user ? (
           <div className="text-lg font-medium flex items-center gap-4">
-            <Link to="/register" className="hover:text-white cursor-pointer transition-colors">Register</Link>
-            <span className="text-gray-500">or</span>
-            <Link to="/login" className="hover:text-white cursor-pointer transition-colors">Log in</Link>
+            <Link to="/register" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors">Register</Link>
+            <span className="text-gray-400 dark:text-gray-500">or</span>
+            <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors">Log in</Link>
           </div>
         ) : (
           <>
             {/* Notification */}
-            <Bell className="w-6 h-6 hover:text-white cursor-pointer transition-colors" />
+            <Bell className="w-6 h-6 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors" />
 
             {/* Profile */}
             <div className="relative">
               <div
                 onClick={() => setOpen(!open)}
-                className="flex items-center gap-1 cursor-pointer hover:text-white transition-colors"
+                className="flex items-center gap-1 cursor-pointer text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <img
                   src={profileImage || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}
                   alt="profile"
-                  className="w-8 h-8 rounded-full border border-gray-600"
+                  className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-600"
                 />
                 <ChevronDown size={16} />
               </div>
 
               {/* Dropdown */}
               {open && (
-                <div className="absolute right-0 mt-2 w-48 bg-[#2d333b] rounded-md shadow-lg text-base z-50 border border-gray-700">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#2d333b] rounded-md shadow-lg text-base z-50 border border-gray-200 dark:border-gray-700">
                   <Link
                     to="/profile"
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#373e47] cursor-pointer transition-colors rounded-t-md"
                   >
                     Profile
                   </Link>
                   <Link
                     to="/dashboard"
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#373e47] cursor-pointer transition-colors"
                   >
                     Dashboard
                   </Link>
                   {user.role == 'admin' && <Link
                     to="/admin"
                     onClick={() => setOpen(false)}
-                    className="block px-4 py-2 hover:bg-[#373e47] cursor-pointer transition-colors"
+                    className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#373e47] cursor-pointer transition-colors"
                   >
                     Admin Panel
                   </Link>}
-                  <div className="border-t border-gray-600 my-1"></div>
+                  <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-[#373e47] cursor-pointer text-red-400 hover:text-red-300 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-[#373e47] rounded-b-md cursor-pointer text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors flex items-center gap-2"
                   >
                     <LogOut size={16} />
                     Logout
