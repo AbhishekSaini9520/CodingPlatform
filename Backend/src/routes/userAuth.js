@@ -5,6 +5,7 @@ const userMiddleware = require("../middleware/userMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const upload = require("../middleware/multer.middleware");
 const { uploadProfileImage, updateCoverImage, updateProfile } = require("../controllers/user.controller");
+const { getLeaderboard } = require("../controllers/leaderboard")
 // import { upload } from "../middleware/multer.middleware.js";
 // import { uploadProfileImage } from "../controllers/user.controller.js";
 
@@ -18,5 +19,6 @@ userAuth.get("/getProfile", userMiddleware, getProfile);
 userAuth.post("/updateProfile", userMiddleware, updateProfile);
 userAuth.post("/uploadProfile", userMiddleware, upload.single("image"), uploadProfileImage)
 userAuth.post("/uploadCoverImage", userMiddleware, upload.single("image"), updateCoverImage)
+userAuth.get("/leaderboard", getLeaderboard)
 
 module.exports = userAuth;

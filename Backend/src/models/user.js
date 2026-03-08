@@ -44,6 +44,10 @@ const userSchema = new Schema({
         required: true,
         // select: false
     },
+    score: {
+        type: Number,
+        default: 0
+    },
     profileImage: {
         type: String,
         default: "https://res.cloudinary.com/diq2vbfgs/image/upload/v1772708785/defaultProfile_eo9p4m.png"

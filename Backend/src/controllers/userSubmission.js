@@ -104,6 +104,10 @@ const submitCode = async (req, res) => {
                 //important for ranking
                 user.solvedCount += 1;
 
+                // calculate the point of question
+                const points = problem.difficulty === "easy" ? 3 : problem.difficulty === "medium" ? 5 : 7;
+                user.score += points;
+
                 await user.save();
             }
         }

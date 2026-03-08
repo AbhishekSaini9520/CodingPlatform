@@ -249,14 +249,14 @@ const updateProblem = async (req, res) => {
             problemCreator
         } = req.body;
 
-        console.log(req.body);
+        // console.log(req.body);
 
         const parsedTags = Array.isArray(tags) ? tags.join(",") : tags;
-        console.log("1");
+        // console.log("1");
         if (!id) {
             return res.status(400).send("Missing ID Field");
         }
-        console.log("2");
+        // console.log("2");
         const problem = await Problem.findById(id);
 
         if (!problem) {
@@ -270,7 +270,7 @@ const updateProblem = async (req, res) => {
             (test) => test && test.input !== undefined && test.output !== undefined
         );
         // console.log(allTestCases);
-        console.log("3");
+        // console.log("3");
         // Find C++ reference solution
 
 
@@ -278,11 +278,11 @@ const updateProblem = async (req, res) => {
             const cppSolution = referenceSolution.find(
                 (sol) => sol.language === "c++"
             );
-            console.log("4");
+            // console.log("4");
             if (!cppSolution) {
                 return res.status(400).send("C++ reference solution is required");
             }
-            console.log("5");
+            // console.log("5");
             const { completeSolution } = cppSolution;
 
             const languageId = getLanguageById("c++");
@@ -290,7 +290,7 @@ const updateProblem = async (req, res) => {
             if (!languageId) {
                 return res.status(400).send("C++ language id not found");
             }
-            console.log("before submissions");
+            // console.log("before submissions");
             // Create Judge0 submissions
             const submissions = allTestCases.map((testcase) => ({
                 source_code: completeSolution,
@@ -299,7 +299,7 @@ const updateProblem = async (req, res) => {
                 expected_output: testcase.output
             }));
             const submitResult = await submitBatch(submissions);
-            console.log("after judge0");
+            // console.log("after judge0");
             if (!submitResult || !Array.isArray(submitResult)) {
                 return res.status(500).send("Judge0 submission failed");
             }
@@ -307,8 +307,8 @@ const updateProblem = async (req, res) => {
             const resultTokens = submitResult.map((value) => value.token);
 
             const testResults = await submitToken(resultTokens);
-            console.log("test result a gaya");
-            console.log(testResults);
+            // console.log("test result a gaya");
+            // console.log(testResults);
 
             for (const test of testResults) {
 
@@ -347,7 +347,7 @@ const updateProblem = async (req, res) => {
         const cleanExample = explainTestCase
             ? explainTestCase.map(({ _id, ...rest }) => rest)
             : problem.explainTestCase;
-        console.log("before problem update");
+        // console.log("before problem update");
 
         const updatedProblem = await Problem.findByIdAndUpdate(
             id,
@@ -364,7 +364,24 @@ const updateProblem = async (req, res) => {
             { new: true, runValidators: true }
         );
 
-        console.log("updated Probem updatedProblem");
+        if (problem.difficulty !== difficulty) {
+
+            const oldPoints =
+                problem.difficulty === "easy" ? 3 : problem.difficulty === "medium" ? 5 : 7;
+
+            const newPoints =
+                difficulty === "easy" ? 3 : difficulty === "medium" ? 5 : 7;
+
+            const diff = newPoints - oldPoints;
+
+            // Update users who solved this problem
+            await User.updateMany(
+                { solvedProblems: problem._id },
+                { $inc: { score: diff } }
+            );
+        }
+
+        // console.log("updated Problem updatedProblem");
 
         return res.status(200).json(updatedProblem);
 
@@ -384,7 +401,12 @@ const deleteProblem = async (req, res) => {
         if (!id)
             return res.status(400).send("ID is Missing");
 
+        // const problem = await Problem.findById(id);
+
+
         const deletedProblem = await Problem.findByIdAndDelete(id);
+
+        const points = deletedProblem.difficulty === "easy" ? 3 : problem.difficulty === "medium" ? 5 : 7;
 
         if (!deletedProblem)
             return res.status(404).send("Problem Not Found");
@@ -395,11 +417,16 @@ const deleteProblem = async (req, res) => {
 
         await Submission.deleteMany({ problemId: id });
 
+
+
         await User.updateMany(
             { _id: { $in: userIds } },
             {
                 $pull: { problemSolved: id },
-                $inc: { solvedCount: -1 }
+                $inc: {
+                    solvedCount: -1,
+                    score: -points
+                }
             }
         );
 
@@ -409,26 +436,6 @@ const deleteProblem = async (req, res) => {
         res.status(500).send("Error: " + error.message);
     }
 };
-// const deleteProblem = async (req, res) => {
-//     const { id } = req.params;
-//     try {
-
-//         if (!id)
-//             res.send("ID is Missing");
-
-//         const deletedProblem = await Problem.findByIdAndDelete(id);
-
-//         if (!deletedProblem)
-//             res.status(404).send("Problem is Missing");
-
-//         // await Submission.findByIdAndDelete(id);
-
-//         res.status(200).send("Problem Successfully Deleted")
-//     }
-//     catch (error) {
-//         res.status(404).send("Error " + error);
-//     }
-// }
 
 const getProblemById = async (req, res) => {
     const { id } = req.params;

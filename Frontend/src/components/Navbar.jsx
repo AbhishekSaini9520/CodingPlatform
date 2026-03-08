@@ -21,7 +21,6 @@ const Navbar = () => {
         <Link to="/" className="text-2xl font-bold text-white cursor-pointer hover:text-gray-300 transition-colors">
           &lt;/&gt; CodeHub
         </Link>
-
         {/* Links */}
         <div className="hidden md:flex gap-6 text-lg font-medium">
           <Link to="/problems" className="hover:text-white cursor-pointer transition-colors">Problems</Link>
