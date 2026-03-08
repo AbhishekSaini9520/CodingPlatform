@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -11,6 +12,15 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout();
     setOpen(false);
+  };
+
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && search.trim() !== "") {
+      navigate(`/problems?search=${encodeURIComponent(search)}`);
+    }
   };
 
   return (
@@ -31,10 +41,20 @@ const Navbar = () => {
       </div>
 
       {/* CENTER SEARCH */}
+      {/* <div className="hidden md:block w-1/3">
+        <input
+          type="text"
+          placeholder="Search problems..."
+          className="w-full bg-[#1f2428] border border-gray-600 rounded-md px-3 py-2 text-base focus:outline-none focus:border-blue-500 placeholder-gray-500 text-gray-200"
+        />
+      </div> */}
       <div className="hidden md:block w-1/3">
         <input
           type="text"
           placeholder="Search problems..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleSearch}
           className="w-full bg-[#1f2428] border border-gray-600 rounded-md px-3 py-2 text-base focus:outline-none focus:border-blue-500 placeholder-gray-500 text-gray-200"
         />
       </div>
