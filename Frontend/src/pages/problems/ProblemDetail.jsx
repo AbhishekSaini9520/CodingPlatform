@@ -88,7 +88,9 @@ const ProblemDetail = () => {
         setRunResult(null);
 
         try {
+            // console.log("Before Submit");
             const result = await submitCode(id, code, language);
+            // console.log("After Submit");
 
             setSubmitResult(result);
             setActiveLeftTab('submissions');

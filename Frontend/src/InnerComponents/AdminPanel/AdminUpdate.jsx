@@ -27,28 +27,26 @@ const AdminUpdate = () => {
   };
 
   // Select problem
-const handleSelect = async (id) => {
-  try {
-    const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
+  const handleSelect = async (id) => {
+    try {
+      const { data } = await axiosInstance.get(`/problem/problemById/${id}`);
 
-    const fixedVisible = (data.visibleTestCases || []).map((t) => ({
-      ...t,
-      explanation: t.explanation || t.explationation || ""
-    }));
+      const fixedVisible = (data.visibleTestCases || []).map((t) => ({
+        ...t,
+        explanation: t.explanation || t.explationation || ""
+      }));
 
-    setSelectedProblem({
-      ...data,
-      visibleTestCases: fixedVisible,
-      hiddenTestCases: data.hiddenTestCases || [],
-      startCode: data.startCode || [],
-      referenceSolution: data.referenceSolution || []
-    });
+      setSelectedProblem({
+        ...data,
+        visibleTestCases: fixedVisible,
+        hiddenTestCases: data.hiddenTestCases
+      });
 
-  } catch (err) {
-    setError("Failed to fetch problem details");
-    console.error(err);
-  }
-};
+    } catch (err) {
+      setError("Failed to fetch problem details");
+      console.error(err);
+    }
+  };
 
   // Handle simple fields
   const handleChange = (e) => {
@@ -188,13 +186,12 @@ const handleSelect = async (id) => {
                       <td className="p-4">
 
                         <span
-                          className={`px-3 py-1 rounded-md text-sm font-medium ${
-                            problem.difficulty === "easy"
-                              ? "bg-green-600"
-                              : problem.difficulty === "medium"
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${problem.difficulty === "easy"
+                            ? "bg-green-600"
+                            : problem.difficulty === "medium"
                               ? "bg-yellow-600"
                               : "bg-red-600"
-                          }`}
+                            }`}
                         >
                           {problem.difficulty}
                         </span>
@@ -285,6 +282,74 @@ const handleSelect = async (id) => {
               </select>
             </div>
 
+            {/*Example Test Cases*/}
+            <div>
+
+              <h3 className="text-lg font-semibold mb-3">
+                Example Test Cases
+              </h3>
+
+              {selectedProblem.explainTestCase.map((test, i) => (
+
+                <div key={i} className="bg-gray-900 p-4 rounded mb-4 space-y-2">
+
+                  <div className="flex gap-3">
+
+                    <input
+                      value={test.input || ""}
+                      placeholder="Input"
+                      onChange={(e) =>
+                        handleArrayChange("explainTestCase", i, "input", e.target.value)
+                      }
+                      className="flex-1 bg-gray-800 border border-gray-700 p-2 rounded"
+                    />
+
+                    <input
+                      value={test.output || ""}
+                      placeholder="Output"
+                      onChange={(e) =>
+                        handleArrayChange("explainTestCase", i, "output", e.target.value)
+                      }
+                      className="flex-1 bg-gray-800 border border-gray-700 p-2 rounded"
+                    />
+
+                    <button
+                      onClick={() => handleRemoveArrayItem("explainTestCase", i)}
+                      className="bg-red-600 px-3 rounded"
+                    >
+                      ✕
+                    </button>
+
+                  </div>
+
+                  <textarea
+                    value={test.explanation || ""}
+                    placeholder="Explanation"
+                    onChange={(e) =>
+                      handleArrayChange("explainTestCase", i, "explanation", e.target.value)
+                    }
+                    rows={2}
+                    className="w-full bg-gray-800 border border-gray-700 p-2 rounded"
+                  />
+
+                </div>
+
+              ))}
+
+              <button
+                onClick={() =>
+                  handleAddArrayItem("explainTestCase", {
+                    input: "",
+                    output: "",
+                    explanation: ""
+                  })
+                }
+                className="bg-blue-600 px-4 py-1 rounded"
+              >
+                + Add Test Case
+              </button>
+
+            </div>
             {/* Visible Test Cases */}
             <div>
 
@@ -361,7 +426,7 @@ const handleSelect = async (id) => {
                 Hidden Test Cases
               </h3>
 
-              {selectedProblem.hiddenTestCases.map((test, i) => (
+              {selectedProblem.hiddenTestCases?.map((test, i) => (
 
                 <div key={i} className="flex gap-3 mb-2">
 

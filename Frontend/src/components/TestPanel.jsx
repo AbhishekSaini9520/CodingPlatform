@@ -53,7 +53,7 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                     <div className="space-y-4">
                         {/* Case Tabs */}
                         <div className="flex items-center gap-2 mb-4">
-                            {problem?.visibleTestCases?.map((_, idx) => (
+                            {problem?.explainTestCase?.map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setActiveTestCaseId(idx)}
@@ -68,18 +68,18 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                         </div>
 
                         {/* Selected Case Input */}
-                        {problem?.visibleTestCases && problem.visibleTestCases[activeTestCaseId] && (
+                        {problem?.explainTestCase && problem.explainTestCase[activeTestCaseId] && (
                             <div className="space-y-4">
                                 <div className="space-y-1">
                                     <label className="text-xs text-gray-400">Input</label>
                                     <div className="bg-gray-900 p-3 rounded-lg text-gray-300 font-mono text-sm border border-gray-700">
-                                        {problem.visibleTestCases[activeTestCaseId].input}
+                                        {problem.explainTestCase[activeTestCaseId].input}
                                     </div>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs text-gray-400">Expected Output</label>
                                     <div className="bg-gray-900 p-3 rounded-lg text-gray-300 font-mono text-sm border border-gray-700">
-                                        {problem.visibleTestCases[activeTestCaseId].output}
+                                        {problem.explainTestCase[activeTestCaseId].output}
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@ const TestPanel = ({ problem, testCases, setTestCases, runResult, isRunning }) =
                                         <div className="space-y-1">
                                             <label className="text-xs text-gray-400">Input</label>
                                             <div className="bg-gray-900 p-3 rounded-lg text-gray-300 font-mono text-sm border border-gray-700">
-                                                {problem?.visibleTestCases?.[activeTestCaseId]?.input || "N/A"}
+                                                {problem?.explainTestCase?.[activeTestCaseId]?.input || "N/A"}
                                             </div>
                                         </div>
 

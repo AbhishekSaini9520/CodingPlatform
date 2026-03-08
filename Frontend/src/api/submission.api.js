@@ -65,9 +65,9 @@ export const submitCode = async (problemId, code, language) => {
             }
         );
 
-        console.log(language);
-        console.log(problemId);
-        console.log(code);
+        // console.log(language);
+        // console.log(problemId);
+        // console.log(code);
 
         if (!response.ok) {
             const errorData = await response.json();

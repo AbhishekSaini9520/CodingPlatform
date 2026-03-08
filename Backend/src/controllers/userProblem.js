@@ -241,19 +241,22 @@ const updateProblem = async (req, res) => {
             description,
             difficulty,
             tags,
-            visibleTestCases = [],
-            hiddenTestCases = [],
-            startCode = [],
-            referenceSolution = [],
+            explainTestCase,
+            visibleTestCases,
+            hiddenTestCases,
+            startCode,
+            referenceSolution,
             problemCreator
         } = req.body;
 
+        console.log(req.body);
+
         const parsedTags = Array.isArray(tags) ? tags.join(",") : tags;
-        // console.log("1");
+        console.log("1");
         if (!id) {
             return res.status(400).send("Missing ID Field");
         }
-        // console.log("2");
+        console.log("2");
         const problem = await Problem.findById(id);
 
         if (!problem) {
@@ -267,19 +270,19 @@ const updateProblem = async (req, res) => {
             (test) => test && test.input !== undefined && test.output !== undefined
         );
         // console.log(allTestCases);
-        // console.log("3");
+        console.log("3");
         // Find C++ reference solution
 
 
         if (allTestCases.length !== 0) {
             const cppSolution = referenceSolution.find(
-                (sol) => sol.language === "C++"
+                (sol) => sol.language === "c++"
             );
-            // console.log("4");
+            console.log("4");
             if (!cppSolution) {
                 return res.status(400).send("C++ reference solution is required");
             }
-            // console.log("5");
+            console.log("5");
             const { completeSolution } = cppSolution;
 
             const languageId = getLanguageById("c++");
@@ -287,7 +290,7 @@ const updateProblem = async (req, res) => {
             if (!languageId) {
                 return res.status(400).send("C++ language id not found");
             }
-            // console.log("before submissions");
+            console.log("before submissions");
             // Create Judge0 submissions
             const submissions = allTestCases.map((testcase) => ({
                 source_code: completeSolution,
@@ -296,7 +299,7 @@ const updateProblem = async (req, res) => {
                 expected_output: testcase.output
             }));
             const submitResult = await submitBatch(submissions);
-            // console.log("after judge0");
+            console.log("after judge0");
             if (!submitResult || !Array.isArray(submitResult)) {
                 return res.status(500).send("Judge0 submission failed");
             }
@@ -304,6 +307,8 @@ const updateProblem = async (req, res) => {
             const resultTokens = submitResult.map((value) => value.token);
 
             const testResults = await submitToken(resultTokens);
+            console.log("test result a gaya");
+            console.log(testResults);
 
             for (const test of testResults) {
 
@@ -319,10 +324,30 @@ const updateProblem = async (req, res) => {
 
 
         // Remove Mongo _id fields
-        const cleanVisible = (visibleTestCases || []).map(({ _id, ...rest }) => rest);
-        const cleanHidden = (hiddenTestCases || []).map(({ _id, ...rest }) => rest);
-        const cleanStartCode = (startCode || []).map(({ _id, ...rest }) => rest);
-        const cleanReference = (referenceSolution || []).map(({ _id, ...rest }) => rest);
+        const cleanVisible = visibleTestCases
+            ? visibleTestCases.map(({ _id, ...rest }) => rest)
+            : problem.visibleTestCases;
+
+        // const correctedCleanVisible = [...problem?.visibleTestCases, ...cleanVisible]
+
+        const cleanHidden = hiddenTestCases
+            ? hiddenTestCases.map(({ _id, ...rest }) => rest)
+            : problem.hiddenTestCases;
+
+        const correctedCleanHidden = [...problem?.hiddenTestCases, ...cleanHidden]
+
+        const cleanStartCode = startCode
+            ? startCode.map(({ _id, ...rest }) => rest)
+            : problem.startCode;
+
+        const cleanReference = referenceSolution
+            ? referenceSolution.map(({ _id, ...rest }) => rest)
+            : problem.referenceSolution;
+
+        const cleanExample = explainTestCase
+            ? explainTestCase.map(({ _id, ...rest }) => rest)
+            : problem.explainTestCase;
+        console.log("before problem update");
 
         const updatedProblem = await Problem.findByIdAndUpdate(
             id,
@@ -331,15 +356,15 @@ const updateProblem = async (req, res) => {
                 description,
                 difficulty,
                 tags: parsedTags,
+                explainTestCase: cleanExample,
                 visibleTestCases: cleanVisible,
-                hiddenTestCases: cleanHidden,
-                startCode: cleanStartCode,
-                referenceSolution: cleanReference,
+                hiddenTestCases: correctedCleanHidden,
                 problemCreator
             },
             { new: true, runValidators: true }
         );
-        // console.log("updated Probem updatedProblem");
+
+        console.log("updated Probem updatedProblem");
 
         return res.status(200).json(updatedProblem);
 

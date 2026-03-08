@@ -18,6 +18,7 @@ const submitCode = async (req, res) => {
 
         // Fetch problems from the DB to see the hidden testcases
         const problem = await Problem.findById(problemId);
+        // console.log(problem);
 
         // Sumit wala code phale DB mai store kara lo fir Jude0 ko bhejna 
 
@@ -33,15 +34,17 @@ const submitCode = async (req, res) => {
         // baki sari cheeje hm jude0 ke answer lane ke baad karenge
 
         const languageId = await getLanguageById(language);
-
+        // console.log(languageId)
         const submissions = problem.hiddenTestCases.map((testcase) => ({
             source_code: code,
             language_id: languageId,
             stdin: testcase.input,
             expected_output: testcase.output
         }));
+        // console.log(submissions)
 
         const submitResult = await submitBatch(submissions);
+        console.log("afterbatch")
         //extract token
         const resultToken = submitResult.map((value) => value.token);
         //submit token
@@ -110,7 +113,8 @@ const submitCode = async (req, res) => {
 
     }
     catch (err) {
-        res.status(500).send("Internal Server Error" + err);
+        console.log(err.message);
+        res.status(500).send("Internal Server Error" + err.errorMessage);
     }
 
 }
