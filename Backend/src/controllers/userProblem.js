@@ -376,7 +376,7 @@ const updateProblem = async (req, res) => {
 
             // Update users who solved this problem
             await User.updateMany(
-                { solvedProblems: problem._id },
+                { problemSolved: problem._id },
                 { $inc: { score: diff } }
             );
         }
