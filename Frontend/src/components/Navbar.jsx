@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import ThemeSwitcher from "./ThemeSwitcher";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/themeContext";
 
