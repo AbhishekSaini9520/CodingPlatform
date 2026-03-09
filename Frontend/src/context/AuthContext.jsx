@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser, logoutUser, getProfile, registerUser, getUserRank } from '../api/auth.api';
+import { loginUser, logoutUser, getProfile, registerUser, getUserRank, googleAuth as googleAuthApi } from '../api/auth.api';
 import { getSolvedQuestion } from '../api/problem.api';
 import { socket } from '../socket/socket';
 
@@ -69,6 +69,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const googleLogin = async (credential) => {
+        try {
+            const data = await googleAuthApi(credential);
+            await loadUser();
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             await logoutUser();
@@ -79,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, register, loadUser }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, register, googleLogin, loadUser }}>
             {children}
         </AuthContext.Provider>
     );

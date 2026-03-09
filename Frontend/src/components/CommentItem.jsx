@@ -53,7 +53,7 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
     : "";
 
   return (
-    <div className={`mt-4 ${depth > 0 ? 'ml-2 pl-4 border-l-2 border-[#2d3348]' : ''}`}>
+    <div className={`mt-4 ${depth > 0 ? 'ml-2 pl-4 border-l-2 border-gray-200 dark:border-[#2d3348]' : ''}`}>
       <div className="flex gap-3">
         {/* Avatar */}
         <div className="flex-shrink-0 mt-1">
@@ -63,18 +63,18 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
         {/* Comment Body */}
         <div className="flex-1">
           <div className="flex items-baseline gap-2">
-            <span className="font-semibold text-gray-200 text-sm">{authorName}</span>
+            <span className="font-semibold text-gray-900 dark:text-gray-200 text-sm">{authorName}</span>
             <span className="text-gray-500 text-xs">{commentDate}</span>
           </div>
 
-          <p className="text-gray-300 text-sm mt-1 leading-relaxed">
+          <p className="text-gray-700 dark:text-gray-300 text-sm mt-1 leading-relaxed">
             {comment.text}
           </p>
 
           <div className="mt-2 flex items-center gap-4">
             {userId && (
               <button
-                className="group flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+                className="group flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
                 onClick={() => setIsReplying(!isReplying)}
               >
                 <Reply size={14} className="group-hover:rotate-[-10deg] transition-transform" />
@@ -101,7 +101,7 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
               </div>
               <div className="flex-1 relative">
                 <input
-                  className="w-full bg-[#151822] text-white rounded-lg py-2 px-3 pr-10 border border-[#2d3348] focus:border-[#ff6b00] outline-none text-sm"
+                  className="w-full bg-gray-50 dark:bg-[#151822] text-gray-900 dark:text-white rounded-lg py-2 px-3 pr-10 border border-gray-200 dark:border-[#2d3348] focus:border-[#ff6b00] dark:focus:border-[#ff6b00] outline-none text-sm transition-colors"
                   placeholder={`Replying to ${authorName}...`}
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}

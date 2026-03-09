@@ -86,7 +86,7 @@ const deletePost = async (req, res) => {
   try {
 
     await Post.findByIdAndDelete(req.params.postId);
-
+    // Also delete for comment schema to do...
     res.json({
       success: true,
       message: "Post deleted"

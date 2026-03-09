@@ -81,17 +81,21 @@ const CommentSection = ({ postId, authorId }) => {
 
   return (
 
-    <div style={{ marginTop: "10px", width: "100%" }}>
+    <div className="mt-2 w-full">
 
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+      <div className="flex gap-2 mb-4">
         <input
-          style={{ flex: 1, padding: "8px" }}
+          className="flex-1 bg-gray-50 dark:bg-[#151822] text-gray-900 dark:text-white rounded-lg py-2 px-3 border border-gray-200 dark:border-[#2d3348] focus:border-[#ff6b00] dark:focus:border-[#ff6b00] outline-none text-sm transition-colors"
           placeholder="Write comment..."
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
 
-        <button onClick={handleAddComment} disabled={!userId}>
+        <button
+          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+          onClick={handleAddComment}
+          disabled={!userId || !text.trim()}
+        >
           Comment
         </button>
       </div>

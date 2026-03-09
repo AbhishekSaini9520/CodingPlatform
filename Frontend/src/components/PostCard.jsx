@@ -107,21 +107,21 @@ const PostCard = ({ post, refreshPosts }) => {
   const avatarUrl = post.profileImage || post.author?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=ff6b00&color=fff`;
 
   return (
-    <div className="bg-[#1e2332] border border-[#2d3348] rounded-xl p-6 transition-all hover:border-gray-500">
+    <div className="bg-white dark:bg-[#1e2332] border border-gray-200 dark:border-[#2d3348] rounded-xl p-6 transition-all hover:border-gray-300 dark:hover:border-gray-500">
       <div className="flex gap-4">
         {/* Avatar */}
         <div className="flex-shrink-0">
           <img
             src={avatarUrl}
             alt={authorName}
-            className="w-12 h-12 rounded-full border-2 border-[#2d3348]"
+            className="w-12 h-12 rounded-full border-2 border-gray-200 dark:border-[#2d3348]"
           />
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start">
-            <h3 className="text-xl font-semibold text-white mb-2 leading-tight">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 leading-tight">
               {post.title}
             </h3>
 
@@ -136,13 +136,13 @@ const PostCard = ({ post, refreshPosts }) => {
             )}
           </div>
 
-          <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
             {post.content}
           </p>
 
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-4 text-gray-400 text-sm mb-4">
-            <div className="flex items-center gap-1.5 font-medium text-gray-300">
+            <div className="flex items-center gap-1.5 font-medium text-gray-700 dark:text-gray-300">
               <img
                 src={avatarUrl}
                 alt={authorName}
@@ -169,7 +169,7 @@ const PostCard = ({ post, refreshPosts }) => {
 
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1 hover:text-white transition-colors"
+              className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <MessageSquare size={16} />
               <span>{commentCount}</span>

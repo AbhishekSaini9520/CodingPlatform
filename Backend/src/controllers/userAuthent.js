@@ -4,6 +4,10 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis');
 const Submission = require('../models/submission')
+const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const register = async (req, res) => {
 
@@ -167,7 +171,72 @@ const getProfile = async (req, res) => {
     }
 }
 
-module.exports = { register, login, logout, adminRegister, deleteProfile, getProfile };
+const googleAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            throw new Error("Invalid Google token provided");
+        }
+
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { email, given_name, family_name, picture } = payload;
+
+        let user = await User.findOne({ emailId: email });
+
+        if (!user) {
+            // User does not exist, create a new one with a random password
+            const randomPassword = crypto.randomBytes(16).toString('hex');
+            const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+            user = await User.create({
+                firstName: given_name || email.split('@')[0], // Fallback if given_name is not available
+                lastName: family_name || '',
+                emailId: email,
+                password: hashedPassword,
+                role: 'user',
+                profileImage: picture || "https://res.cloudinary.com/diq2vbfgs/image/upload/v1772708785/defaultProfile_eo9p4m.png"
+            });
+        }
+
+        // Login user
+        const jwtToken = jwt.sign(
+            { _id: user._id, emailId: user.emailId, role: user.role },
+            process.env.JWT_KEY,
+            { expiresIn: '7d' }
+        );
+
+        res.cookie('token', jwtToken, {
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            path: '/',
+            sameSite: 'none',
+            secure: true
+        });
+
+        res.status(200).json({
+            message: "Google Login Successfully",
+            user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                emailId: user.emailId,
+                role: user.role,
+                profileImage: user.profileImage
+            }
+        });
+
+    } catch (error) {
+        res.status(400).send("Error validating Google token: " + error.message);
+    }
+}
+
+module.exports = { register, login, logout, adminRegister, deleteProfile, getProfile, googleAuth };
 
 // const validate = require('../utils/validator')
 // const bcrypt = require('bcrypt');

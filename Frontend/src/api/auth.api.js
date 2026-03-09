@@ -21,6 +21,17 @@ export const registerUser = async (userData) => {
     }
 };
 
+export const googleAuth = async (credential) => {
+    try {
+        const response = await axiosInstance.post('/user/google', {
+            token: credential
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
 export const logoutUser = async () => {
     try {
         const response = await axiosInstance.post('/user/logout');
