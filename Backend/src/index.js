@@ -20,9 +20,11 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://coding-platform-eta-woad.vercel.app"],
-    credentials: true,
-    methods: ["GET", "POST"]
+    origin: [
+      "http://localhost:5173",
+      "https://coding-platform-eta-woad.vercel.app"
+    ],
+    credentials: true
   }
 });
 
@@ -38,11 +40,16 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+
+    // allow requests with no origin (server-server, Postman, health checks)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    console.log("Blocked CORS origin:", origin);
+    return callback(null, false); // don't throw error
   },
   credentials: true
 }));
