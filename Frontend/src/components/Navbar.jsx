@@ -17,17 +17,29 @@ const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
+
     const handleNotification = (notif) => {
+
+      console.log("New Notification:", notif);
+
       setNotifications((prev) => [notif, ...prev]);
+
       setUnreadCount((prev) => prev + 1);
     };
 
     socket.on("notification", handleNotification);
 
-    return () => {
-      socket.off("notification", handleNotification);
-    };
+    return () => socket.off("notification", handleNotification);
+
   }, []);
+
+  useEffect(() => {
+
+    if (user?._id) {
+      socket.emit("joinUser", user._id);
+    }
+
+  }, [user]);
 
   const handleBellClick = () => {
     setShowNotifications(!showNotifications);

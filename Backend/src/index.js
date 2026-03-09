@@ -12,8 +12,10 @@ const rankRoute = require("./routes/rankRoute");
 const aiRouter = require("./routes/aiChatting");
 const discussionRoutes = require("./routes/discussionRoutes.js");
 const { Server } = require("socket.io");
-const { socketHandler } = require("./socket/socketHandler.js");
+const { socketHandler } = require("./services/socketHandler.js");
 const http = require("http");
+const notificationRoutes = require("./routes/notificationRoutes");
+
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -51,6 +53,7 @@ app.use('/submission', submitRouter);
 app.use("/api", rankRoute);
 app.use('/ai', aiRouter);
 app.use('/discussion', discussionRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const InitalizeConnection = async () => {
   try {
