@@ -40,10 +40,18 @@ const CommentSection = ({ postId, authorId }) => {
       }
     };
 
+    const handleCommentDeleted = ({ commentId, postId: eventPostId }) => {
+      if (eventPostId === postId) {
+        setComments((prev) => prev.filter(c => c._id !== commentId));
+      }
+    };
+
     socket.on("newComment", handleNewComment);
+    socket.on("commentDeleted", handleCommentDeleted);
 
     return () => {
       socket.off("newComment", handleNewComment);
+      socket.off("commentDeleted", handleCommentDeleted);
     };
   }, [postId]);
 
@@ -59,7 +67,9 @@ const CommentSection = ({ postId, authorId }) => {
       postId,
       userId,
       text,
-      authorId
+      authorId,
+      firstName: user.firstName,
+      profileImage: user.profileImage
     });
 
     setText("");

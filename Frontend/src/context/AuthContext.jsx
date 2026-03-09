@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, logoutUser, getProfile, registerUser, getUserRank } from '../api/auth.api';
 import { getSolvedQuestion } from '../api/problem.api';
+import { socket } from '../socket/socket';
 
 const AuthContext = createContext();
 

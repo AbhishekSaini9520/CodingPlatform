@@ -1,15 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "../context/themeContext";
+import { socket } from "../socket/socket";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const profileImage = user?.profileImage;
+
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const handleNotification = (notif) => {
+      setNotifications((prev) => [notif, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    };
+
+    socket.on("notification", handleNotification);
+
+    return () => {
+      socket.off("notification", handleNotification);
+    };
+  }, []);
+
+  const handleBellClick = () => {
+    setShowNotifications(!showNotifications);
+    setUnreadCount(0);
+    setOpen(false); // Close profile dropdown if open
+  };
 
   const { theme, setTheme } = useTheme();
 
@@ -95,12 +119,49 @@ const Navbar = () => {
         ) : (
           <>
             {/* Notification */}
-            <Bell className="w-6 h-6 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-colors" />
+            <div className="relative">
+              <div onClick={handleBellClick} className="relative cursor-pointer">
+                <Bell className="w-6 h-6 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#2d333b] rounded-md shadow-lg text-sm z-50 border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
+                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-200">
+                    Notifications
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                      No new notifications
+                    </div>
+                  ) : (
+                    notifications.map((notif, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#373e47] transition-colors"
+                      >
+                        <p className="text-gray-800 dark:text-gray-200">
+                          Someone <span className="font-semibold">{notif.type}d</span> your post!
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Profile */}
             <div className="relative">
               <div
-                onClick={() => setOpen(!open)}
+                onClick={() => {
+                  setOpen(!open);
+                  setShowNotifications(false); // Close notifications if open
+                }}
                 className="flex items-center gap-1 cursor-pointer text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <img

@@ -53,7 +53,7 @@ const socketHandler = (io) => {
       CREATE NOTIFICATION
       */
 
-      if (authorId !== userId) {
+      if (authorId && authorId !== userId) {
 
         await Notification.create({
           receiver: authorId,
@@ -112,11 +112,13 @@ const socketHandler = (io) => {
 
     socket.on("addComment", async (data) => {
 
-      const { postId, userId, text, authorId, parentComment } = data;
+      const { postId, userId, text, authorId, parentComment, firstName, profileImage } = data;
 
       const commentData = {
         postId,
         user: userId,
+        firstName,
+        profileImage,
         text
       };
 
@@ -138,7 +140,7 @@ const socketHandler = (io) => {
       SEND NOTIFICATION
       */
 
-      if (authorId !== userId) {
+      if (authorId && authorId !== userId) {
 
         await Notification.create({
           receiver: authorId,
@@ -153,6 +155,39 @@ const socketHandler = (io) => {
           postId
         });
 
+      }
+
+    });
+
+
+    /*
+    DELETE COMMENT
+    */
+
+    socket.on("deleteComment", async ({ commentId, postId, userId }) => {
+
+      try {
+        const comment = await Comment.findById(commentId);
+        if (!comment) return;
+
+        // Verify the user requesting deletion is the author
+        const authorIdStr = comment.user?._id?.toString() || comment.user?.toString();
+
+        if (authorIdStr === userId) {
+
+          await Comment.findByIdAndDelete(commentId);
+
+          await Post.findByIdAndUpdate(
+            postId,
+            { $inc: { commentCount: -1 } }
+          );
+
+          // Broadcast to all clients so the comment vanishes instantly
+          io.emit("commentDeleted", { commentId, postId });
+
+        }
+      } catch (error) {
+        console.error("Error deleting comment:", error);
       }
 
     });

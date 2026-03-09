@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { socket } from "../socket/socket";
-import { CornerDownRight, Reply, Send } from "lucide-react";
+import { CornerDownRight, Reply, Send, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
@@ -17,8 +17,10 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
       postId,
       userId,
       text: replyText,
-      authorId, // The author of the post to notify
-      parentComment: comment._id
+      authorId: comment.user?._id || comment.user || authorId, // Notify the parent comment author!
+      parentComment: comment._id,
+      firstName: user.firstName,
+      profileImage: user.profileImage
     });
 
     setReplyText("");
@@ -30,8 +32,20 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
     (c) => c.parentComment === comment._id
   );
 
-  const authorName = comment.user?.username || "Anonymous User";
-  const avatarUrl = comment.user?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=475569&color=fff`;
+  const authorName = comment.firstName || comment.user?.username || "Anonymous User";
+  const avatarUrl = comment.profileImage || comment.user?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=475569&color=fff`;
+
+  // Check if current user is the author of this comment
+  const commentAuthorId = comment.user?._id?.toString() || comment.user?.toString();
+  const isAuthor = userId === commentAuthorId;
+
+  const handleDelete = () => {
+    socket.emit("deleteComment", {
+      commentId: comment._id,
+      postId,
+      userId
+    });
+  };
 
   // Format comment date
   const commentDate = comment.createdAt
@@ -65,6 +79,16 @@ const CommentItem = ({ comment, allComments, postId, authorId, depth = 0 }) => {
               >
                 <Reply size={14} className="group-hover:rotate-[-10deg] transition-transform" />
                 <span>Reply</span>
+              </button>
+            )}
+            {isAuthor && (
+              <button
+                className="group flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                onClick={handleDelete}
+                title="Delete your comment"
+              >
+                <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
+                <span>Delete</span>
               </button>
             )}
           </div>

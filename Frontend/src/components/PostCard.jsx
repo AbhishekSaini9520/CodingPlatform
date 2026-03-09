@@ -9,6 +9,8 @@ const PostCard = ({ post, refreshPosts }) => {
   const [showComments, setShowComments] = useState(false);
   const [likes, setLikes] = useState(post.likes?.length || 0);
   const [dislikes, setDislikes] = useState(post.dislikes?.length || 0);
+  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
+
   const { user } = useAuth();
 
   const userId = user ? user._id : null;
@@ -52,12 +54,28 @@ const PostCard = ({ post, refreshPosts }) => {
       }
     };
 
+    const handleNewCommentCount = (comment) => {
+      if (comment.postId === post._id) {
+        setCommentCount((prev) => prev + 1);
+      }
+    };
+
+    const handleDeletedCommentCount = ({ postId }) => {
+      if (postId === post._id) {
+        setCommentCount((prev) => Math.max(0, prev - 1));
+      }
+    };
+
     socket.on("postLiked", handlePostLiked);
     socket.on("postDisliked", handlePostDisliked);
+    socket.on("newComment", handleNewCommentCount);
+    socket.on("commentDeleted", handleDeletedCommentCount);
 
     return () => {
       socket.off("postLiked", handlePostLiked);
       socket.off("postDisliked", handlePostDisliked);
+      socket.off("newComment", handleNewCommentCount);
+      socket.off("commentDeleted", handleDeletedCommentCount);
     };
   }, [post._id]);
 
@@ -154,7 +172,7 @@ const PostCard = ({ post, refreshPosts }) => {
               className="flex items-center gap-1 hover:text-white transition-colors"
             >
               <MessageSquare size={16} />
-              <span>{post.commentCount || 0}</span>
+              <span>{commentCount}</span>
             </button>
 
             <span className="text-gray-500">{formattedDate}</span>
@@ -174,8 +192,8 @@ const PostCard = ({ post, refreshPosts }) => {
 
           {/* Comments Section */}
           {showComments && (
-            <div className="mt-6 pt-4 border-t border-[#2d3348]">
-              <CommentSection postId={post._id} authorId={post.author?._id} />
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+              <CommentSection postId={post._id} authorId={post.author._id || post.author} />
             </div>
           )}
         </div>

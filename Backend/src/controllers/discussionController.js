@@ -107,7 +107,7 @@ const addComment = async (req, res) => {
 
   try {
 
-    const { text, parentComment } = req.body;
+    const { text, parentComment, firstName, profileImage } = req.body;
 
     // Auth middleware attaches user object to req.result
     const userId = req.result ? req.result._id : req.body.userId;
@@ -119,6 +119,8 @@ const addComment = async (req, res) => {
     const commentData = {
       postId: req.params.postId,
       user: userId,
+      firstName,
+      profileImage,
       text
     };
 

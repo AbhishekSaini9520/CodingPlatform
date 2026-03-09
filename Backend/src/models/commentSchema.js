@@ -14,6 +14,10 @@ const CommentSchema = new Schema({
     ref: "user"
   },
 
+  firstName: String,
+
+  profileImage: String,
+
   text: String,
 
   parentComment: {
