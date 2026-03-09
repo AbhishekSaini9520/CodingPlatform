@@ -12,7 +12,7 @@ const PostCard = ({ post, refreshPosts }) => {
   const { user } = useAuth();
 
   const userId = user ? user._id : null;
-
+  console.log(post);
   /*
   LIKE POST
   */
@@ -74,19 +74,19 @@ const PostCard = ({ post, refreshPosts }) => {
   };
 
   // Generate some dummy tags based on the topic if not provided
-  const displayTags = post.tags && post.tags.length > 0
-    ? post.tags
-    : ["Dynamic Programming", "Tips", "Tutorial"];
+  // const displayTags = post.tags && post.tags.length > 0
+  //   ? post.tags
+  //   : ["Dynamic Programming", "Tips", "Tutorial"];
 
   // Format date if timestamps exist
   const formattedDate = post.createdAt
     ? new Date(post.createdAt).toLocaleDateString()
     : "3/5/2026";
 
-  const authorName = post.author?.username || "sarahc";
+  const authorName = post.firstName || post.author?.username || "sarahc";
 
   // Using a placeholder avatar until user avatars are fully implemented
-  const avatarUrl = post.author?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=ff6b00&color=fff`;
+  const avatarUrl = post.profileImage || post.author?.avatar || `https://ui-avatars.com/api/?name=${authorName}&background=ff6b00&color=fff`;
 
   return (
     <div className="bg-[#1e2332] border border-[#2d3348] rounded-xl p-6 transition-all hover:border-gray-500">
@@ -161,7 +161,7 @@ const PostCard = ({ post, refreshPosts }) => {
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2">
+          {/*<div className="flex flex-wrap gap-2">
             {displayTags.map(tag => (
               <span
                 key={tag}
@@ -170,7 +170,7 @@ const PostCard = ({ post, refreshPosts }) => {
                 {tag}
               </span>
             ))}
-          </div>
+          </div>*/}
 
           {/* Comments Section */}
           {showComments && (

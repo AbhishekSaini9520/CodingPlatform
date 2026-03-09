@@ -13,6 +13,14 @@ const PostSchema = new Schema({
     ref: "user"
   },
 
+  profileImage: {
+    type: String
+  },
+
+  firstName: {
+    type: String
+  },
+
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "user"

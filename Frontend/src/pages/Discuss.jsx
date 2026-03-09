@@ -39,7 +39,9 @@ const DiscussPage = () => {
       const newPost = {
         title,
         content,
-        author: user._id
+        author: user._id,
+        firstName: user.firstName,
+        profileImage: user.profileImage
       };
 
       await createPostAPI(newPost);

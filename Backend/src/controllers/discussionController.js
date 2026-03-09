@@ -8,7 +8,7 @@ CREATE POST
 const createPost = async (req, res) => {
   try {
 
-    const { title, content, tags } = req.body;
+    const { title, content, firstName, profileImage } = req.body;
 
     // Auth middleware attaches user object to req.result
     const author = req.result ? req.result._id : req.body.author;
@@ -20,7 +20,8 @@ const createPost = async (req, res) => {
     const post = await Post.create({
       title,
       content,
-      tags,
+      profileImage,
+      firstName,
       author
     });
 
