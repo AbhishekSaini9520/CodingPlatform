@@ -1,9 +1,13 @@
 import { io } from "socket.io-client";
-const BASE_URL = "https://codingplatform-3ipe.onrender.com";
+import axiosInstance from "../api/axiosInstance";
 
-// const URL = "http://localhost:4000";
+const resolvedSocketUrl =
+	import.meta.env.VITE_SOCKET_URL ||
+	axiosInstance.defaults.baseURL ||
+	"http://localhost:4000";
 
-export const socket = io(BASE_URL, {
-  autoConnect: true,
-  withCredentials: true
+export const socket = io(resolvedSocketUrl, {
+	autoConnect: true,
+	withCredentials: true,
+	transports: ["websocket", "polling"]
 });
